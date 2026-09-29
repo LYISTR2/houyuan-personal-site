@@ -5,25 +5,30 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>像素农圃 · 后院</title>
 <style>
-  :root{--ink:#e8f0e4;--dim:#b2cbb9;--gold:#f0cd85;--panel:#173543eb;--line:#aec6b567}
+  :root{--ink:#253b35;--dim:#536d5e;--gold:#98642b;--panel:#f7f5e9ef;--line:#789d82}
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;background:#132d39;font-family:system-ui,"PingFang SC","Noto Sans SC",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
+  html,body{height:100%;overflow:hidden;background:#b9dac0;font-family:system-ui,"PingFang SC","Noto Sans SC",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
   canvas{position:fixed;inset:0;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-  .panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:9px 13px;box-shadow:0 8px 25px #08191b88;backdrop-filter:blur(6px)}
+  .panel{position:fixed;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:9px 13px;box-shadow:0 8px 25px #345a4160;backdrop-filter:blur(6px)}
   #ttl{left:12px;top:12px;font:700 14px ui-monospace,monospace;color:var(--gold)}
   #ttl small{display:block;color:var(--dim);font:10px system-ui;margin-top:4px}
   #home{position:fixed;left:12px;top:79px;color:var(--ink);text-decoration:none;font-size:11px;padding:7px 12px}
   #home:hover{color:var(--gold)}#home:focus-visible{outline:2px solid var(--gold)}
   #hud{right:12px;top:12px;font-size:12px;display:flex;gap:12px;font-family:ui-monospace,monospace}
   #hud b{color:var(--gold)}
-  #bar{left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px}
-  .seed{width:58px;padding:5px 2px 4px;text-align:center;cursor:pointer;border:1px solid transparent;border-radius:4px;color:var(--dim)}
+  #bar{left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;max-width:calc(100vw - 18px)}
+  .seed{width:58px;padding:5px 2px 4px;text-align:center;cursor:pointer;border:1px solid transparent;border-radius:4px;color:var(--dim);font:inherit}
   .seed .ic{font-size:18px;line-height:1.1;image-rendering:pixelated}.seed .nm{font-size:10px;margin-top:2px}.seed .pr{font-size:8px;opacity:.7}
-  .seed.on{border-color:var(--gold);color:var(--ink);background:#dfad6550}.seed.off{opacity:.45;cursor:not-allowed}
-  #toast{left:50%;bottom:83px;transform:translateX(-50%);font-size:11px;background:#102d36e9;padding:7px 12px;border:1px solid var(--line);border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none;position:fixed}
+  .seed.on{border-color:#398363;color:var(--ink);background:#d4e6bf}.seed.off{opacity:.52}
+  #toast{left:50%;bottom:83px;transform:translateX(-50%);font-size:11px;background:#205c4bed;color:#fff;padding:7px 12px;border:1px solid var(--line);border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none;position:fixed}
   #day{left:12px;bottom:12px;font:11px ui-monospace,monospace;color:var(--dim)}
+  #skip{left:12px;bottom:58px;color:var(--ink);font:11px ui-monospace,monospace;cursor:pointer}
+  #skip:hover{border-color:#398363;background:#d4e6bf}#skip:focus-visible{outline:3px solid #bb6e39;outline-offset:2px}
   #hint{right:12px;bottom:12px;font-size:10px;color:var(--dim);text-align:right;line-height:1.8}
-  @media(max-width:680px){#hint{display:none}.seed{width:48px}#home{top:78px}}
+  #order{right:12px;top:68px;width:210px;font-size:12px;line-height:1.55}#order strong{display:block;color:#286950;font-size:14px}#order-progress{height:7px;background:#d9ddc4;margin:8px 0 5px;border-radius:8px;overflow:hidden}#order-fill{height:100%;width:0;background:#5fa879;transition:width .2s}#order small{color:var(--dim)}
+  .seed{background:#e2e9d7}.seed:hover{border-color:#83b895}.seed:focus-visible,#home:focus-visible{outline:3px solid #bb6e39;outline-offset:2px}
+  @media(max-width:680px){#hint{display:none}.seed{width:48px}#home{top:78px}#order{top:99px;right:8px;width:155px;font-size:10px;padding:7px}#order strong{font-size:11px}#ttl{left:8px;top:8px}#hud{top:8px;right:8px;gap:5px;font-size:10px}.panel{padding:7px}#bar{bottom:8px}#day{bottom:86px}#skip{bottom:124px}}
+  @media(max-height:560px){#day{display:none}#hint{display:none}#order{top:60px}}
   @media(prefers-reduced-motion:reduce){#toast{transition:none}}
 </style>
 </head>
@@ -32,10 +37,12 @@
 <div class="panel" id="ttl">像素农圃<small>播种 · 浇水 · 等一场收获</small></div>
 <a class="panel" id="home" href="index.html">← 回到后院</a>
 <div class="panel" id="hud"><span>DAY <b id="d">1</b></span><span>◈ <b id="c">20</b></span><span>✦ <b id="h">0</b></span></div>
+<div class="panel" id="order" aria-live="polite"><strong id="order-name"></strong><span id="order-text"></span><div id="order-progress"><div id="order-fill"></div></div><small id="order-reward"></small></div>
 <div class="panel" id="bar"></div>
 <div id="toast"></div>
 <div class="panel" id="day"></div>
-<div class="panel" id="hint">1-4 选种 · SPACE 快进<br>拖动平移 · 滚轮缩放</div>
+<button class="panel" id="skip" type="button">⏩ 快进 8 小时</button>
+<div class="panel" id="hint">1-4 选种 · SPACE / 按钮快进 8 小时<br>点空地播种 · 点幼苗浇水 · 点成熟作物收获<br>拖动平移 · 滚轮缩放</div>
 <script>
 "use strict";
 /* =====================================================
@@ -50,13 +57,14 @@ function rs(){
   cv.style.width=W+'px';cv.style.height=H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.imageSmoothingEnabled=false;
+  cam.z=Math.max(1.5,Math.min(5,(W-(W>900?470:24))/(7*16),(H-(H<700?250:200))/(5*16)));
 }
-addEventListener('resize',rs);rs();
+addEventListener('resize',rs);
 
 /* ---------- 调色板 ---------- */
 const PAL={
   soilA:'#6b4f35',soilB:'#5d4429',soilWet:'#453421',soilEdge:'#3a2c1c',
-  sky0:'#172e3a',sky1:'#34545b',
+  sky0:'#a6d6bf',sky1:'#dae7bb',
   sprout:'#7fae4c',leaf:'#5c8a3c',leafD:'#44682e',
   wheat:'#d9b84b',wheatD:'#b3923a',
   tomato:'#c94f4f',tomatoD:'#9c3838',
@@ -93,8 +101,8 @@ const SPR={
     "00011000",
   ],
 };
-function fruitDots(kind){ // 果实位置
-  return [[-5,-14],[5,-16],[0,-22]];
+function fruitDots(kind){ // 果实位置随品种错开
+  return kind==='tomato'?[[-4,-10],[3,-12],[0,-18]]:kind==='pump'?[[0,-5]]:[[-5,-13],[5,-16],[0,-21]];
 }
 
 /* ---------- 游戏数据 ---------- */
@@ -109,25 +117,36 @@ const GROW=8; // 每阶段浇水小时
 let plots=[],coins=20,day=1,hour=8,harv=0,sel=0;
 let cam={x:0,y:0,z:3},drag=null,moved=0;   // z = 像素放大倍数
 const KEY='pixelfarm-v1';
+let order={id:'wheat',goal:3,done:0,number:1},counts={};
+function nextOrder(n){return {id:SEEDS[(n-1)%SEEDS.length].id,goal:3+Math.floor((n-1)/SEEDS.length),done:0,number:n};}
 
 function init(){plots=[];for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)plots.push({x,y,s:null,st:0,w:0,p:0,dead:0,dry:0});}
 init();
-function save(){try{localStorage.setItem(KEY,JSON.stringify({plots,coins,day,hour,harv}));}catch(e){}}
-(function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.plots&&d.plots.length===COLS*ROWS){plots=d.plots;coins=d.coins;day=d.day;hour=d.hour;harv=d.harv||0;}}catch(e){}})();
+function save(){try{localStorage.setItem(KEY,JSON.stringify({plots,coins,day,hour,harv,order,counts}));}catch(e){flash('存储不可用，请检查浏览器设置');}}
+(function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.plots)&&d.plots.length===COLS*ROWS){
+  plots=plots.map((p,i)=>{const q=d.plots[i];if(!q||q.x!==p.x||q.y!==p.y)return p;return {...p,s:SEEDS.some(S=>S.id===q.s)?q.s:null,st:Math.max(0,Math.min(3,Number(q.st)||0)),w:Math.max(0,Math.min(32,Number(q.w)||0)),p:Math.max(0,Math.min(GROW,Number(q.p)||0)),dead:q.dead?1:0,dry:Number(q.dry)||0};});
+  if(Number.isFinite(d.coins))coins=Math.max(0,d.coins);if(Number.isFinite(d.day))day=Math.max(1,d.day);
+  if(Number.isFinite(d.hour))hour=Math.max(0,Math.min(23,d.hour));if(Number.isFinite(d.harv))harv=Math.max(0,d.harv);
+  if(d.order&&SEEDS.some(S=>S.id===d.order.id)&&Number.isFinite(d.order.goal)&&Number.isFinite(d.order.done)&&Number.isFinite(d.order.number))order={id:d.order.id,goal:Math.max(1,Math.floor(d.order.goal)),done:Math.max(0,Math.floor(d.order.done)),number:Math.max(1,Math.floor(d.order.number))};
+  if(d.counts&&typeof d.counts==='object')for(const S of SEEDS)counts[S.id]=Math.max(0,Number(d.counts[S.id])||0);
+}}catch(e){}})();
 
 /* ---------- 网格 ---------- */
 const CELL=16; // 一格 16 像素（放大 z 倍）
 function toScreen(gx,gy){
-  return [W/2+(gx-COLS/2+.5)*CELL*cam.z+cam.x, H/2+(gy-ROWS/2+.5)*CELL*cam.z+cam.y];
+  return [W/2-(W>900?100:0)+(gx-(COLS-1)/2)*CELL*cam.z+cam.x, H/2+(gy-(ROWS-1)/2)*CELL*cam.z+cam.y];
 }
 function toGrid(mx,my){
-  const gx=(mx-W/2-cam.x)/(CELL*cam.z)+COLS/2-.5;
-  const gy=(my-H/2-cam.y)/(CELL*cam.z)+ROWS/2-.5;
-  return [gx,gy];
+  const gx=(mx-W/2+(W>900?100:0)-cam.x)/(CELL*cam.z)+(COLS-1)/2;
+  const gy=(my-H/2-cam.y)/(CELL*cam.z)+(ROWS-1)/2;
+  return [Math.floor(gx+.5),Math.floor(gy+.5)];
 }
 
 /* ---------- 绘制 ---------- */
-function px(x,y,s,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(s),Math.ceil(s));}
+function px(x,y,w,h,c){
+  if(c===undefined){c=h;h=w;}
+  ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));
+}
 function drawSprite(map,cx,cy,c1,c2){
   const s=cam.z;
   for(let r=0;r<map.length;r++)for(let i=0;i<map[r].length;i++){
@@ -161,8 +180,13 @@ function drawPlot(p){
   if(p.st>=2) drawSprite(SPR.leaf,cx,cy-6*z,PAL.leaf,PAL.sprout);
   if(p.st>=3){
     drawSprite(SPR.bush,cx,cy-8*z,PAL.leafD,PAL.leaf);
-    for(const [ox,oy] of fruitDots(p.s))
-      px(cx+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,3*z,S.c);
+    if(p.s==='pump'){
+      px(cx-6*z,cy-9*z,12*z,7*z,S.cd);px(cx-5*z,cy-10*z,10*z,7*z,S.c);
+      px(cx-z,cy-12*z,2*z,3*z,PAL.leafD);
+    }else for(const [ox,oy] of fruitDots(p.s)){
+      px(cx+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,p.s==='wheat'?5*z:3*z,S.cd);
+      px(cx+ox*z-z,cy+oy*z-z,2*z,p.s==='wheat'?4*z:2*z,S.c);
+    }
   }
   // 渴水标记：一个闪烁的小水滴像素
   if(p.w<=0&&Math.floor(Date.now()/500)%2===0)
@@ -170,7 +194,15 @@ function drawPlot(p){
 }
 function drawFence(){
   const z=cam.z;
-  ctx.fillStyle=PAL.fence;
+  const [left,top]=toScreen(0,0),[right,bottom]=toScreen(COLS-1,ROWS-1),size=CELL*z;
+  px(left-size*.5-14*z,top-size*.5-14*z,right-left+size+28*z,bottom-top+size+28*z,'#4a7956');
+  px(left-size*.5-11*z,top-size*.5-11*z,right-left+size+22*z,bottom-top+size+22*z,'#75a977');
+  for(let i=0;i<90;i++){
+    const x=left-size*.5-10*z+((i*47)%(COLS*CELL+19))*z;
+    const y=top-size*.5-10*z+((i*61)%(ROWS*CELL+19))*z;
+    if(x<left-size*.5||x>right+size*.5||y<top-size*.5||y>bottom+size*.5)
+      px(x,y,z,z,i%3?'#9bca80':'#e4da8c');
+  }
   for(let x=0;x<=COLS;x++){
     const [cx,cy]=toScreen(x-.5,-.5);
     px(cx-z,cy-4*z,2*z,6*z,PAL.fence);
@@ -179,26 +211,40 @@ function drawFence(){
     px(cx2-z,cy2-4*z,2*z,6*z,PAL.fence);
     px(cx2-z,cy2-4*z,2*z,z,PAL.fenceL);
   }
+  for(let y=0;y<=ROWS;y++)for(const x of [-1,COLS]){
+    const [cx,cy]=toScreen(x,y-.5);
+    px(cx-z,cy-4*z,2*z,6*z,PAL.fence);
+    px(cx-z,cy-4*z,2*z,z,PAL.fenceL);
+  }
+  px(right+size*.5+15*z,top+3*z,18*z,11*z,'#4d402d');
+  px(right+size*.5+13*z,top+z,18*z,11*z,'#e6c58c');
+  px(right+size*.5+18*z,top+5*z,10*z,2*z,'#648b5a');
+  px(right+size*.5+22*z,top+12*z,2*z,10*z,'#5a4733');
+  px(left-size*.5-32*z,bottom+size*.5-6*z,17*z,9*z,'#547b71');
+  px(left-size*.5-29*z,bottom+size*.5-9*z,11*z,3*z,'#a9c8a8');
 }
-const stars=Array.from({length:60},()=>({x:Math.random(),y:Math.random()*0.5,t:Math.random()*6}));
+const stars=Array.from({length:60},()=>({x:Math.random(),y:Math.random()*0.5}));
 function drawSky(){
   const g=ctx.createLinearGradient(0,0,0,H);
   g.addColorStop(0,PAL.sky0);g.addColorStop(1,PAL.sky1);
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  const t=Date.now()/1000;
-  ctx.fillStyle=PAL.star;
-  for(const s of stars){
-    if(Math.sin(t+s.t)>0.3) ctx.fillRect(s.x*W,s.y*H,2,2);
-  }
-  // 像素月亮
+  ctx.fillStyle='#8fbb93';ctx.beginPath();ctx.moveTo(0,H*.54);
+  for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.54+Math.sin(x*.016)*20);
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+  ctx.fillStyle='#639a73';ctx.beginPath();ctx.moveTo(0,H*.68);
+  for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.67+Math.sin(x*.02+2)*25);
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
+  for(const s of stars)px(s.x*W,H*.7+s.y*H*.5,2,4,'#bbd38f');
+  // 白天的像素太阳
   const mx=W*0.82,my=H*0.16,u=Math.max(2,Math.round(cam.z));
   for(const [ox,oy] of [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[1,3],[2,3]])
-    ctx.fillStyle='#e8e0cf',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
+    ctx.fillStyle='#f9e9a6',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
 }
 function draw(){
   drawSky();
   drawFence();
   for(const p of [...plots].sort((a,b)=>a.y-b.y)) drawPlot(p);
+  if(day%5===0){ctx.fillStyle='#dbf3e077';for(let i=0;i<65;i++)ctx.fillRect((i*113+Date.now()/55)%W,(i*79+Date.now()/35)%H,1,6);}
 }
 
 /* ---------- 逻辑 ---------- */
@@ -206,6 +252,7 @@ function tick(){
   hour++;
   for(const p of plots){
     if(!p.s||p.dead)continue;
+    if(day%5===0)p.w=Math.min(32,p.w+2); // 雨天每小时回潮
     if(p.w>0){p.p++;p.w--;}
     if(p.p>=GROW&&p.st<3){p.st++;p.p=0;}
     // 干旱只是暂停生长，不再枯死——主页橱窗宜松不宜苛
@@ -226,8 +273,10 @@ function act(p){
   }else if(p.st>=3){
     const S=SEEDS.find(q=>q.id===p.s);
     const v=Math.round(S.sell*(p.w>0?1:0.6));
-    coins+=v;harv++;Object.assign(p,{s:null,st:0,p:0});
-    flash('收获 +'+v+'◈');
+    coins+=v;harv++;counts[S.id]=(counts[S.id]||0)+1;Object.assign(p,{s:null,st:0,p:0});
+    let message='收获 '+S.nm+' +'+v+'◈';
+    if(S.id===order.id){order.done++;if(order.done>=order.goal){const bonus=order.goal*4;coins+=bonus;message+=' · 一篮完成 +'+bonus+'◈';order=nextOrder(order.number+1);}}
+    flash(message);
     try{parent.postMessage({type:'farm-harvest',value:v,total:harv},'*');}catch(e){}
   }else{p.w=Math.min(p.w+16,32);flash('浇透了');}
   save();hud();
@@ -244,7 +293,7 @@ cv.addEventListener('pointermove',e=>{
 cv.addEventListener('pointerup',e=>{
   drag=null;if(moved)return;
   const [gx,gy]=toGrid(e.clientX,e.clientY);
-  const p=plots.find(q=>q.x===Math.floor(gx)&&q.y===Math.floor(gy));
+  const p=plots.find(q=>q.x===gx&&q.y===gy);
   if(p)act(p);
 });
 cv.addEventListener('wheel',e=>{
@@ -255,11 +304,12 @@ addEventListener('keydown',e=>{
   if(e.key>='1'&&e.key<='4'){sel=+e.key-1;hud();}
   if(e.key===' '){e.preventDefault();for(let i=0;i<8;i++)tick();}
 });
+document.getElementById('skip').onclick=()=>{for(let i=0;i<8;i++)tick();};
 
 /* ---------- HUD ---------- */
 const bar=document.getElementById('bar');
 SEEDS.forEach((S,i)=>{
-  const d=document.createElement('div');d.className='seed';
+  const d=document.createElement('button');d.type='button';d.className='seed';
   d.innerHTML=`<div class="ic">${S.ic}</div><div class="nm">${S.nm}</div><div class="pr">${S.price}◈</div>`;
   d.onclick=()=>{sel=i;hud();};
   bar.appendChild(d);
@@ -268,17 +318,25 @@ function hud(){
   document.getElementById('d').textContent=day;
   document.getElementById('c').textContent=coins;
   document.getElementById('h').textContent=harv;
-  document.getElementById('day').textContent=String(hour).padStart(2,'0')+':00';
+  document.getElementById('day').textContent=String(hour).padStart(2,'0')+':00'+(day%5===0?' · 雨天，田地会自然回潮':' · 晴天');
+  const O=SEEDS.find(S=>S.id===order.id);
+  document.getElementById('order-name').textContent='这一篮 · '+O.nm;
+  document.getElementById('order-text').textContent='收获 '+O.nm+' '+order.done+' / '+order.goal;
+  document.getElementById('order-fill').style.width=Math.min(100,order.done/order.goal*100)+'%';
+  document.getElementById('order-reward').textContent='完成奖励 +'+order.goal*4+'◈ · 田间累计 '+harv+' 次';
   [...bar.children].forEach((d,i)=>{
     d.classList.toggle('on',i===sel);
     d.classList.toggle('off',coins<SEEDS[i].price);
+    d.setAttribute('aria-pressed',String(i===sel));
   });
 }
 let tt;
 function flash(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;clearTimeout(tt);tt=setTimeout(()=>t.style.opacity=0,1200);}
 
+// 旧存档若把全部零钱用尽且田里无作物，补一包便宜的种子防止死局。
+if(coins<3&&!plots.some(p=>p.s)){coins=4;flash('找到一包麦种 · 补给 4◈');save();}
+rs();hud();
 (function loop(){draw();requestAnimationFrame(loop);})();
-hud();
 </script>
 </body>
 </html>

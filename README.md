@@ -31,7 +31,7 @@ sudo env PORT=8092 bash install.sh
 
 - 修改 `index.html` 中的网站名称、个人介绍、作品描述与链接（默认展示名 `lyistr`，可按需换成你自己的）。
 - `hero-preview.webp`、`project-preview.webp`、`farm-preview.webp` 是首页静态预览；可以替换为你的作品截图。
-- `game.html` 是当前游戏，`game-classic.html` 是上一版，`farm.html` 是农圃。
+- `game.html` 是当前游戏，`game-classic.html` 是上一版，`farm.html` 是农圃：可种植四种作物、完成收获小篮，并支持晴雨轮换与本地存档。
 - 随手记、农圃和游戏进度保存在访问者**自己的浏览器 localStorage**，不会同步到服务器，也不会随重新部署而清除；浏览器清理数据或换设备后无法从服务器恢复。
 
 本仓库只包括静态页面、预览图片和部署脚本；不包含私有服务器配置、备份或测试页面。
