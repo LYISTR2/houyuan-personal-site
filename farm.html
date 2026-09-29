@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>像素农圃 · 后院</title>
+<style>
+  :root{--ink:#e8f0e4;--dim:#b2cbb9;--gold:#f0cd85;--panel:#173543eb;--line:#aec6b567}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#132d39;font-family:system-ui,"PingFang SC","Noto Sans SC",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
+  canvas{position:fixed;inset:0;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
+  .panel{position:fixed;background:var(--panel);border:1px solid var(--line);border-radius:7px;padding:9px 13px;box-shadow:0 8px 25px #08191b88;backdrop-filter:blur(6px)}
+  #ttl{left:12px;top:12px;font:700 14px ui-monospace,monospace;color:var(--gold)}
+  #ttl small{display:block;color:var(--dim);font:10px system-ui;margin-top:4px}
+  #home{position:fixed;left:12px;top:79px;color:var(--ink);text-decoration:none;font-size:11px;padding:7px 12px}
+  #home:hover{color:var(--gold)}#home:focus-visible{outline:2px solid var(--gold)}
+  #hud{right:12px;top:12px;font-size:12px;display:flex;gap:12px;font-family:ui-monospace,monospace}
+  #hud b{color:var(--gold)}
+  #bar{left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px}
+  .seed{width:58px;padding:5px 2px 4px;text-align:center;cursor:pointer;border:1px solid transparent;border-radius:4px;color:var(--dim)}
+  .seed .ic{font-size:18px;line-height:1.1;image-rendering:pixelated}.seed .nm{font-size:10px;margin-top:2px}.seed .pr{font-size:8px;opacity:.7}
+  .seed.on{border-color:var(--gold);color:var(--ink);background:#dfad6550}.seed.off{opacity:.45;cursor:not-allowed}
+  #toast{left:50%;bottom:83px;transform:translateX(-50%);font-size:11px;background:#102d36e9;padding:7px 12px;border:1px solid var(--line);border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none;position:fixed}
+  #day{left:12px;bottom:12px;font:11px ui-monospace,monospace;color:var(--dim)}
+  #hint{right:12px;bottom:12px;font-size:10px;color:var(--dim);text-align:right;line-height:1.8}
+  @media(max-width:680px){#hint{display:none}.seed{width:48px}#home{top:78px}}
+  @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div class="panel" id="ttl">像素农圃<small>播种 · 浇水 · 等一场收获</small></div>
+<a class="panel" id="home" href="index.html">← 回到后院</a>
+<div class="panel" id="hud"><span>DAY <b id="d">1</b></span><span>◈ <b id="c">20</b></span><span>✦ <b id="h">0</b></span></div>
+<div class="panel" id="bar"></div>
+<div id="toast"></div>
+<div class="panel" id="day"></div>
+<div class="panel" id="hint">1-4 选种 · SPACE 快进<br>拖动平移 · 滚轮缩放</div>
+<script>
+"use strict";
+/* =====================================================
+   像素农圃 —— 逐格绘制的像素农场，零依赖单文件
+   ===================================================== */
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+let W,H,DPR;
+function rs(){
+  DPR=Math.min(devicePixelRatio||1,2);
+  W=innerWidth;H=innerHeight;
+  cv.width=W*DPR;cv.height=H*DPR;
+  cv.style.width=W+'px';cv.style.height=H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.imageSmoothingEnabled=false;
+}
+addEventListener('resize',rs);rs();
+
+/* ---------- 调色板 ---------- */
+const PAL={
+  soilA:'#6b4f35',soilB:'#5d4429',soilWet:'#453421',soilEdge:'#3a2c1c',
+  sky0:'#172e3a',sky1:'#34545b',
+  sprout:'#7fae4c',leaf:'#5c8a3c',leafD:'#44682e',
+  wheat:'#d9b84b',wheatD:'#b3923a',
+  tomato:'#c94f4f',tomatoD:'#9c3838',
+  pump:'#d98a3c',pumpD:'#a8662a',
+  herb:'#6aa87f',herbD:'#4e8160',
+  dead:'#6a5a44',
+  fence:'#4a3a28',fenceL:'#5d4a34',
+  star:'#e8e0cf',
+};
+
+/* ---------- 像素精灵（位图，1=有色 0=透明） ---------- */
+// 每个生长阶段一张小图，8x8 ~ 12x12，运行时放大
+const SPR={
+  sprout:[ // 发芽
+    "00011000",
+    "00111100",
+    "00011000",
+    "00011000",
+  ],
+  leaf:[ // 苗
+    "00111100",
+    "01111110",
+    "11100111",
+    "00111100",
+    "00011000",
+    "00011000",
+  ],
+  bush:[ // 成株
+    "01100110",
+    "11111111",
+    "11111111",
+    "01111110",
+    "00111100",
+    "00011000",
+  ],
+};
+function fruitDots(kind){ // 果实位置
+  return [[-5,-14],[5,-16],[0,-22]];
+}
+
+/* ---------- 游戏数据 ---------- */
+const COLS=7,ROWS=5;
+const SEEDS=[
+  {id:'wheat', nm:'麦子', ic:'🌾', price:4,  sell:9,  c:PAL.wheat, cd:PAL.wheatD, h:2},
+  {id:'tomato',nm:'番茄', ic:'🍅', price:6,  sell:15, c:PAL.tomato,cd:PAL.tomatoD,h:3},
+  {id:'pump',  nm:'南瓜', ic:'🎃', price:10, sell:26, c:PAL.pump,  cd:PAL.pumpD,  h:4},
+  {id:'herb',  nm:'薄荷', ic:'🌿', price:3,  sell:7,  c:PAL.herb,  cd:PAL.herbD,  h:2},
+];
+const GROW=8; // 每阶段浇水小时
+let plots=[],coins=20,day=1,hour=8,harv=0,sel=0;
+let cam={x:0,y:0,z:3},drag=null,moved=0;   // z = 像素放大倍数
+const KEY='pixelfarm-v1';
+
+function init(){plots=[];for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)plots.push({x,y,s:null,st:0,w:0,p:0,dead:0,dry:0});}
+init();
+function save(){try{localStorage.setItem(KEY,JSON.stringify({plots,coins,day,hour,harv}));}catch(e){}}
+(function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&d.plots&&d.plots.length===COLS*ROWS){plots=d.plots;coins=d.coins;day=d.day;hour=d.hour;harv=d.harv||0;}}catch(e){}})();
+
+/* ---------- 网格 ---------- */
+const CELL=16; // 一格 16 像素（放大 z 倍）
+function toScreen(gx,gy){
+  return [W/2+(gx-COLS/2+.5)*CELL*cam.z+cam.x, H/2+(gy-ROWS/2+.5)*CELL*cam.z+cam.y];
+}
+function toGrid(mx,my){
+  const gx=(mx-W/2-cam.x)/(CELL*cam.z)+COLS/2-.5;
+  const gy=(my-H/2-cam.y)/(CELL*cam.z)+ROWS/2-.5;
+  return [gx,gy];
+}
+
+/* ---------- 绘制 ---------- */
+function px(x,y,s,c){ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(s),Math.ceil(s));}
+function drawSprite(map,cx,cy,c1,c2){
+  const s=cam.z;
+  for(let r=0;r<map.length;r++)for(let i=0;i<map[r].length;i++){
+    if(map[r][i]==='1'){
+      px(cx+(i-map[r].length/2)*s, cy+(r-map.length)*s, s, (r<map.length/2)?c2:c1);
+    }
+  }
+}
+function drawPlot(p){
+  const z=cam.z, s=CELL*z;
+  const [cx,cy]=toScreen(p.x,p.y);
+  const x=cx-s/2, y=cy-s/2;
+  // 土壤棋盘
+  const wet=p.w>0;
+  px(x,y,s,(p.x+p.y)%2?(wet?PAL.soilWet:PAL.soilB):(wet?PAL.soilWet:PAL.soilA));
+  // 边缘
+  px(x,y,s,z,PAL.soilEdge);px(x,y+s-z,s,z,PAL.soilEdge);
+  px(x,y,z,s,PAL.soilEdge);px(x+s-z,y,z,s,PAL.soilEdge);
+  if(!p.s)return;
+  if(p.dead){ // 枯株
+    px(cx-z,cy-8*z,2*z,8*z,PAL.dead);
+    px(cx-3*z,cy-6*z,2*z,2*z,PAL.dead);
+    px(cx+z,cy-7*z,2*z,2*z,PAL.dead);
+    return;
+  }
+  const S=SEEDS.find(q=>q.id===p.s);
+  // 茎
+  px(cx-z,cy-(4+p.st*4)*z,2*z,(4+p.st*4)*z,PAL.leafD);
+  // 叶丛
+  if(p.st>=1) drawSprite(SPR.sprout,cx,cy-4*z,PAL.sprout,PAL.sprout);
+  if(p.st>=2) drawSprite(SPR.leaf,cx,cy-6*z,PAL.leaf,PAL.sprout);
+  if(p.st>=3){
+    drawSprite(SPR.bush,cx,cy-8*z,PAL.leafD,PAL.leaf);
+    for(const [ox,oy] of fruitDots(p.s))
+      px(cx+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,3*z,S.c);
+  }
+  // 渴水标记：一个闪烁的小水滴像素
+  if(p.w<=0&&Math.floor(Date.now()/500)%2===0)
+    px(cx+5*z,cy-12*z,2*z,2*z,'#5ab0e8');
+}
+function drawFence(){
+  const z=cam.z;
+  ctx.fillStyle=PAL.fence;
+  for(let x=0;x<=COLS;x++){
+    const [cx,cy]=toScreen(x-.5,-.5);
+    px(cx-z,cy-4*z,2*z,6*z,PAL.fence);
+    px(cx-z,cy-4*z,2*z,z,PAL.fenceL);
+    const [cx2,cy2]=toScreen(x-.5,ROWS-.5);
+    px(cx2-z,cy2-4*z,2*z,6*z,PAL.fence);
+    px(cx2-z,cy2-4*z,2*z,z,PAL.fenceL);
+  }
+}
+const stars=Array.from({length:60},()=>({x:Math.random(),y:Math.random()*0.5,t:Math.random()*6}));
+function drawSky(){
+  const g=ctx.createLinearGradient(0,0,0,H);
+  g.addColorStop(0,PAL.sky0);g.addColorStop(1,PAL.sky1);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+  const t=Date.now()/1000;
+  ctx.fillStyle=PAL.star;
+  for(const s of stars){
+    if(Math.sin(t+s.t)>0.3) ctx.fillRect(s.x*W,s.y*H,2,2);
+  }
+  // 像素月亮
+  const mx=W*0.82,my=H*0.16,u=Math.max(2,Math.round(cam.z));
+  for(const [ox,oy] of [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[1,3],[2,3]])
+    ctx.fillStyle='#e8e0cf',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
+}
+function draw(){
+  drawSky();
+  drawFence();
+  for(const p of [...plots].sort((a,b)=>a.y-b.y)) drawPlot(p);
+}
+
+/* ---------- 逻辑 ---------- */
+function tick(){
+  hour++;
+  for(const p of plots){
+    if(!p.s||p.dead)continue;
+    if(p.w>0){p.p++;p.w--;}
+    if(p.p>=GROW&&p.st<3){p.st++;p.p=0;}
+    // 干旱只是暂停生长，不再枯死——主页橱窗宜松不宜苛
+    if(p.w<=0&&p.st<3){p.dry++;}else p.dry=0;
+  }
+  if(hour>=24){hour=0;day++;flash('第 '+day+' 天');}
+  save();hud();
+}
+setInterval(tick,1500);
+
+function act(p){
+  if(p.dead){Object.assign(p,{dead:0,s:null,st:0,p:0});flash('清理了枯株');}
+  else if(!p.s){
+    const S=SEEDS[sel];
+    if(coins<S.price){flash('◈ 不够');return;}
+    coins-=S.price;Object.assign(p,{s:S.id,st:0,p:0,w:32,dry:0});
+    flash('种下 '+S.nm);
+  }else if(p.st>=3){
+    const S=SEEDS.find(q=>q.id===p.s);
+    const v=Math.round(S.sell*(p.w>0?1:0.6));
+    coins+=v;harv++;Object.assign(p,{s:null,st:0,p:0});
+    flash('收获 +'+v+'◈');
+    try{parent.postMessage({type:'farm-harvest',value:v,total:harv},'*');}catch(e){}
+  }else{p.w=Math.min(p.w+16,32);flash('浇透了');}
+  save();hud();
+}
+
+/* ---------- 输入 ---------- */
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y};moved=0;});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+  if(Math.abs(dx)+Math.abs(dy)>5)moved=1;
+  cam.x=drag.cx+dx;cam.y=drag.cy+dy;
+});
+cv.addEventListener('pointerup',e=>{
+  drag=null;if(moved)return;
+  const [gx,gy]=toGrid(e.clientX,e.clientY);
+  const p=plots.find(q=>q.x===Math.floor(gx)&&q.y===Math.floor(gy));
+  if(p)act(p);
+});
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  cam.z=Math.min(7,Math.max(1.5,cam.z*(e.deltaY>0?0.9:1.12)));
+},{passive:false});
+addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='4'){sel=+e.key-1;hud();}
+  if(e.key===' '){e.preventDefault();for(let i=0;i<8;i++)tick();}
+});
+
+/* ---------- HUD ---------- */
+const bar=document.getElementById('bar');
+SEEDS.forEach((S,i)=>{
+  const d=document.createElement('div');d.className='seed';
+  d.innerHTML=`<div class="ic">${S.ic}</div><div class="nm">${S.nm}</div><div class="pr">${S.price}◈</div>`;
+  d.onclick=()=>{sel=i;hud();};
+  bar.appendChild(d);
+});
+function hud(){
+  document.getElementById('d').textContent=day;
+  document.getElementById('c').textContent=coins;
+  document.getElementById('h').textContent=harv;
+  document.getElementById('day').textContent=String(hour).padStart(2,'0')+':00';
+  [...bar.children].forEach((d,i)=>{
+    d.classList.toggle('on',i===sel);
+    d.classList.toggle('off',coins<SEEDS[i].price);
+  });
+}
+let tt;
+function flash(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;clearTimeout(tt);tt=setTimeout(()=>t.style.opacity=0,1200);}
+
+(function loop(){draw();requestAnimationFrame(loop);})();
+hud();
+</script>
+</body>
+</html>
