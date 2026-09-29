@@ -86,10 +86,10 @@ mv -- "$stage" "$SITE_DIR"
 stage=''
 install -m 0644 "$work/houyuan.conf" "$NGINX_CONF"
 nginx -t
-if command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet nginx; then
-  systemctl reload nginx
-elif pgrep -x nginx >/dev/null 2>&1; then
+if [[ -r /run/nginx.pid ]] && kill -0 "$(< /run/nginx.pid)" 2>/dev/null; then
   nginx -s reload
+elif command -v systemctl >/dev/null 2>&1 && systemctl is-active --quiet nginx; then
+  systemctl reload nginx
 elif command -v systemctl >/dev/null 2>&1 && systemctl start nginx; then
   :
 else
