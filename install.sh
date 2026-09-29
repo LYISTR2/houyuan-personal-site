@@ -107,4 +107,4 @@ committed=0
 printf '\n后院已安装/更新： http://<你的VPS公网IP>:%s/\n' "$PORT"
 printf '代码版本：%s\n' "$(git -C "$work/repo" rev-parse --short HEAD)"
 if [[ -n $backup ]]; then printf '上一个版本备份：%s\n' "$backup"; fi
-printf '如需公网访问，请在 VPS 服务商安全组/防火墙手动放行 TCP %s。本站未修改防火墙、80/443 或其他项目。\n' "$PORT"
+printf '如需公网访问，请在 VPS 服务商安全组/防火墙手动放行 TCP %s。本站未修改防火墙或已有站点；新装 Nginx 的发行版默认页可能另行监听 80。\n' "$PORT"
