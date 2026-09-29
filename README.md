@@ -21,7 +21,7 @@ sudo env PORT=8092 bash install.sh
 
 重新执行同一个脚本即可拉取 `main` 最新代码更新；它会备份旧的本站目录，仅替换 `houyuan-personal-site` 所属目录和 Nginx 配置。如果目标配置文件已被其他程序占用，脚本会拒绝覆盖。也可先审核脚本内容，再执行；**不要对不信任的链接直接运行提权脚本**。
 
-可选环境变量：`PORT`（1024–65535）、`BRANCH`、`REPO_URL`、`SITE_DIR`（默认 `/var/www/houyuan-personal-site`）、`NGINX_CONF`（默认 `/etc/nginx/conf.d/houyuan-personal-site.conf`）、`BACKUP_DIR`（默认 `/var/backups/houyuan-personal-site`）。更换 `SITE_DIR` / `NGINX_CONF` 前先确认不会与现有站点冲突；自定义路径由管理员负责核对。
+可选环境变量：`PORT`（1024–65535）、`BRANCH`、`REPO_URL`、`SITE_DIR`（默认 `/var/www/houyuan-personal-site`，仅允许 `/var/www/` 或 `/srv/` 下的目录）、`NGINX_CONF`（默认 `/etc/nginx/conf.d/houyuan-personal-site.conf`，仅允许该目录下的 `.conf` 文件）、`BACKUP_DIR`（默认 `/var/backups/houyuan-personal-site`）。更换路径前先确认不会与现有站点冲突；自定义路径由管理员负责核对。
 
 **部署前提**：机器可以从 GitHub 和系统软件源下载文件；如本机缺少 `git`、`curl` 或 `nginx`，脚本会用 `apt-get` 安装。Nginx 必须包含常规的 `/etc/nginx/conf.d/*.conf`；脚本会运行 `nginx -t`，并通过本机 HTTP 读取检查部署页面。更新前已存在的目标站点目录会备份至 `BACKUP_DIR`；安装失败时尽力回滚站点目录及本站配置。安装成功后的备份可由管理员自行保留或清理。
 

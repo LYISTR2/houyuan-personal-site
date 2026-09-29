@@ -16,9 +16,14 @@ fail() { printf '错误：%s\n' "$*" >&2; exit 1; }
 [[ -f /etc/os-release ]] || fail '只支持 Debian / Ubuntu 的 systemd 或常见 Nginx 环境。'
 . /etc/os-release
 case "${ID:-}" in debian|ubuntu) ;; *) fail "不支持 ${ID:-unknown}；请使用 Debian 或 Ubuntu。" ;; esac
-[[ $SITE_DIR == /* && $NGINX_CONF == /* && $BACKUP_DIR == /* ]] || fail '部署路径必须是绝对路径。'
+for path in "$SITE_DIR" "$NGINX_CONF" "$BACKUP_DIR"; do
+  [[ $path =~ ^/[A-Za-z0-9_./-]+$ && $path != *..* ]] || fail "无效的部署路径：$path"
+done
 [[ $SITE_DIR != / && $SITE_DIR != /var/www && $BACKUP_DIR != / && $NGINX_CONF == *.conf ]] || fail '拒绝危险的部署路径。'
-[[ $SITE_DIR != *[[:space:]]* && $NGINX_CONF != *[[:space:]]* ]] || fail '站点路径和配置路径不能包含空格。'
+case "$SITE_DIR" in /var/www/*|/srv/*) ;; *) fail '站点目录必须位于 /var/www 或 /srv 下。' ;; esac
+case "$NGINX_CONF" in /etc/nginx/conf.d/*.conf) ;; *) fail '本站配置文件必须位于 /etc/nginx/conf.d/ 下。' ;; esac
+case "$BACKUP_DIR" in /var/backups/*) ;; *) fail '备份目录必须位于 /var/backups/ 下。' ;; esac
+[[ ! -L $SITE_DIR && ! -L $NGINX_CONF ]] || fail '站点目录或配置文件不能是符号链接。'
 if command -v ss >/dev/null 2>&1 && [[ ! -f $NGINX_CONF ]] && [[ -n $(ss -H -ltn "( sport = :$PORT )") ]]; then
   fail "端口 $PORT 已在使用，请指定其他端口：PORT=8092 sudo -E bash install.sh（或先核对端口服务）。"
 fi
@@ -78,6 +83,7 @@ EOF
 # 已有站点先备份；只替换属于本项目的目标目录和独立配置文件。
 if [[ -e $SITE_DIR ]]; then
   [[ -d $SITE_DIR && ! -L $SITE_DIR ]] || fail "$SITE_DIR 已存在但不是普通目录。"
+  [[ -f $SITE_DIR/index.html && -f $SITE_DIR/game.html ]] || fail "$SITE_DIR 已存在但看起来不是本站，拒绝覆盖；请选择其他 SITE_DIR。"
   backup="$BACKUP_DIR/$(date -u +%Y%m%dT%H%M%SZ)-$$"
   mv -- "$SITE_DIR" "$backup"
 fi
