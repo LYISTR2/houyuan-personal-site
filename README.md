@@ -19,7 +19,7 @@ sudo bash install.sh
 sudo env PORT=8092 bash install.sh
 ```
 
-重新执行同一个脚本即可拉取 `main` 最新代码更新；它会备份旧的本站目录，仅替换 `houyuan-personal-site` 所属目录和 Nginx 配置。如果目标配置文件已被其他程序占用，脚本会拒绝覆盖。也可先审核脚本内容，再执行；**不要对不信任的链接直接运行提权脚本**。
+重新执行同一个脚本即可拉取 `main` 最新代码更新；它会备份旧的本站目录，仅替换本安装器标记过的目录和独立 Nginx 配置。如果站点目录或配置文件被其他程序占用，脚本会拒绝覆盖。也可先审核脚本内容，再执行；**不要对不信任的链接直接运行提权脚本**。
 
 可选环境变量：`PORT`（1024–65535）、`BRANCH`、`REPO_URL`、`SITE_DIR`（默认 `/var/www/houyuan-personal-site`，仅允许 `/var/www/` 或 `/srv/` 下的目录）、`NGINX_CONF`（默认 `/etc/nginx/conf.d/houyuan-personal-site.conf`，仅允许该目录下的 `.conf` 文件）、`BACKUP_DIR`（默认 `/var/backups/houyuan-personal-site`）。更换路径前先确认不会与现有站点冲突；自定义路径由管理员负责核对。
 

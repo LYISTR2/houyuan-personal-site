@@ -68,6 +68,8 @@ for file in "${SITE_FILES[@]}"; do [[ -f $work/repo/$file ]] || fail "仓库缺�
 mkdir -p -- "$(dirname "$SITE_DIR")" "$(dirname "$NGINX_CONF")" "$BACKUP_DIR"
 stage=$(mktemp -d "${SITE_DIR}.stage.XXXXXX")
 for file in "${SITE_FILES[@]}"; do install -m 0644 "$work/repo/$file" "$stage/$file"; done
+printf '%s\n' 'houyuan-personal-site' > "$stage/.houyuan-installer"
+chmod 0644 "$stage/.houyuan-installer"
 chmod 0755 "$stage"
 cat > "$work/houyuan.conf" <<EOF
 # Managed by houyuan-personal-site installer
@@ -83,7 +85,7 @@ EOF
 # 已有站点先备份；只替换属于本项目的目标目录和独立配置文件。
 if [[ -e $SITE_DIR ]]; then
   [[ -d $SITE_DIR && ! -L $SITE_DIR ]] || fail "$SITE_DIR 已存在但不是普通目录。"
-  [[ -f $SITE_DIR/index.html && -f $SITE_DIR/game.html ]] || fail "$SITE_DIR 已存在但看起来不是本站，拒绝覆盖；请选择其他 SITE_DIR。"
+  [[ -f $SITE_DIR/.houyuan-installer && ! -L $SITE_DIR/.houyuan-installer && $(< "$SITE_DIR/.houyuan-installer") == houyuan-personal-site ]] || fail "$SITE_DIR 已存在但不是本安装器创建的站点，拒绝覆盖；请选择其他 SITE_DIR。"
   backup="$BACKUP_DIR/$(date -u +%Y%m%dT%H%M%SZ)-$$"
   mv -- "$SITE_DIR" "$backup"
 fi
