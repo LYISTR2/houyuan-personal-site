@@ -5,31 +5,43 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>像素农圃 · 后院</title>
 <style>
-  :root{--ink:#253b35;--dim:#536d5e;--gold:#98642b;--panel:#f7f5e9ef;--line:#789d82}
+  :root{--ink:#49341f;--dim:#74573a;--gold:#9e592f;--paper:#f7e8bf;--wood:#775030;--dark:#3c2a1b;--line:#6e482c}
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;overflow:hidden;background:#b9dac0;font-family:system-ui,"PingFang SC","Noto Sans SC",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
+  html,body{height:100%;overflow:hidden;background:#b6d49f;font-family:system-ui,"PingFang SC","Noto Sans SC",sans-serif;color:var(--ink);-webkit-user-select:none;user-select:none;touch-action:none}
   canvas{position:fixed;inset:0;display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-  .panel{position:fixed;background:var(--panel);border:2px solid var(--line);border-radius:10px;padding:9px 13px;box-shadow:0 8px 25px #345a4160;backdrop-filter:blur(6px)}
-  #ttl{left:12px;top:12px;font:700 14px ui-monospace,monospace;color:var(--gold)}
-  #ttl small{display:block;color:var(--dim);font:10px system-ui;margin-top:4px}
-  #home{position:fixed;left:12px;top:79px;color:var(--ink);text-decoration:none;font-size:11px;padding:7px 12px}
-  #home:hover{color:var(--gold)}#home:focus-visible{outline:2px solid var(--gold)}
-  #hud{right:12px;top:12px;font-size:12px;display:flex;gap:12px;font-family:ui-monospace,monospace}
-  #hud b{color:var(--gold)}
-  #bar{left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:6px;padding:6px;max-width:calc(100vw - 18px)}
-  .seed{width:58px;padding:5px 2px 4px;text-align:center;cursor:pointer;border:1px solid transparent;border-radius:4px;color:var(--dim);font:inherit}
-  .seed .ic{font-size:18px;line-height:1.1;image-rendering:pixelated}.seed .nm{font-size:10px;margin-top:2px}.seed .pr{font-size:8px;opacity:.7}
-  .seed.on{border-color:#398363;color:var(--ink);background:#d4e6bf}.seed.off{opacity:.52}
-  #toast{left:50%;bottom:83px;transform:translateX(-50%);font-size:11px;background:#205c4bed;color:#fff;padding:7px 12px;border:1px solid var(--line);border-radius:4px;opacity:0;transition:opacity .2s;pointer-events:none;position:fixed}
-  #day{left:12px;bottom:12px;font:11px ui-monospace,monospace;color:var(--dim)}
-  #skip{left:12px;bottom:58px;color:var(--ink);font:11px ui-monospace,monospace;cursor:pointer}
-  #skip:hover{border-color:#398363;background:#d4e6bf}#skip:focus-visible{outline:3px solid #bb6e39;outline-offset:2px}
-  #hint{right:12px;bottom:12px;font-size:10px;color:var(--dim);text-align:right;line-height:1.8}
-  #order{right:12px;top:68px;width:210px;font-size:12px;line-height:1.55}#order strong{display:block;color:#286950;font-size:14px}#order-progress{height:7px;background:#d9ddc4;margin:8px 0 5px;border-radius:8px;overflow:hidden}#order-fill{height:100%;width:0;background:#5fa879;transition:width .2s}#order small{color:var(--dim)}
-  .seed{background:#e2e9d7}.seed:hover{border-color:#83b895}.seed:focus-visible,#home:focus-visible{outline:3px solid #bb6e39;outline-offset:2px}
-  @media(max-width:680px){#hint{display:none}.seed{width:48px}#home{top:78px}#order{top:99px;right:8px;width:155px;font-size:10px;padding:7px}#order strong{font-size:11px}#ttl{left:8px;top:8px}#hud{top:8px;right:8px;gap:5px;font-size:10px}.panel{padding:7px}#bar{bottom:8px}#day{bottom:86px}#skip{bottom:124px}}
-  @media(max-height:560px){#day{display:none}#hint{display:none}#order{top:60px}}
-  @media(prefers-reduced-motion:reduce){#toast{transition:none}}
+  .panel{position:fixed;background:var(--paper);border:3px solid var(--line);border-radius:2px;padding:10px 14px;box-shadow:inset 0 0 0 2px #fff4d5,5px 5px 0 #3c2a1b88;image-rendering:pixelated}
+  #ttl{left:22px;top:20px;background:var(--wood);color:#fff1cf;border-color:var(--dark);font:900 24px ui-monospace,monospace;letter-spacing:.05em;text-shadow:2px 2px var(--dark);padding:14px 20px;box-shadow:inset 0 4px #aa7950,inset 0 -4px #543923,5px 5px 0 #3c2a1b99}
+  #ttl::before{content:'✿  BACKYARD / 02';display:block;color:#edcf82;font:700 10px ui-monospace,monospace;letter-spacing:.16em;margin-bottom:5px;text-shadow:none}
+  #ttl small{display:block;color:#f0d8ac;font:11px system-ui;margin-top:5px;letter-spacing:0;text-shadow:none}
+  #home{left:22px;top:133px;color:#533b25;text-decoration:none;font:700 12px ui-monospace,monospace;padding:8px 12px;transition:transform .18s}
+  #home:hover{transform:translateY(-3px)}
+  #hud{right:20px;top:20px;display:flex;gap:0;padding:0;font:700 13px ui-monospace,monospace;background:#6f492c;color:#f8e9c2;border-color:var(--dark);box-shadow:inset 0 4px #aa7950,inset 0 -4px #543923,5px 5px 0 #3c2a1b99}
+  #hud span{padding:12px 15px;border-right:2px solid #af8756}#hud span:last-child{border:0}#hud b{color:#ffe690}
+  #season{right:20px;top:80px;display:flex;gap:5px;align-items:center;padding:7px;background:#eed5a0}
+  #season .label{font:800 10px ui-monospace,monospace;margin-right:4px;color:#67472c}
+  #season button{border:2px solid #ad8659;background:#fff2cc;color:#67462a;min-width:44px;padding:6px 4px;cursor:pointer;font:800 11px ui-monospace,monospace;transition:transform .16s,background .16s}
+  #season button[aria-pressed=true]{background:#81a35d;border-color:#4a6937;color:#172b1c;box-shadow:inset 2px 2px #b8d48c,inset -2px -2px #46673e}
+  #season button:hover{transform:translateY(-3px)}
+  #bar{left:50%;bottom:18px;transform:translateX(-50%);display:flex;gap:6px;padding:9px;background:#865936;border-color:var(--dark);max-width:calc(100vw - 18px);box-shadow:inset 0 4px #b2875a,inset 0 -4px #53381f,5px 5px 0 #3c2a1b88}
+  .seed{width:64px;padding:6px 2px;text-align:center;cursor:pointer;border:2px solid #ab865c;border-radius:1px;background:#f5e2b4;color:#503a24;font:700 12px ui-monospace,monospace;transition:transform .16s,background .16s}
+  .seed .ic{font-size:21px;line-height:1.2;image-rendering:pixelated}.seed .nm{font-size:11px;margin-top:2px}.seed .pr{font-size:10px;opacity:.75}
+  .seed.on{border-color:#46663c;background:#a8c177;box-shadow:inset 2px 2px #d1dd9b,inset -2px -2px #5a8050;color:#24301d}.seed.off{opacity:.65}
+  .seed:hover{transform:translateY(-4px);background:#fff0c5}
+  #toast{left:50%;bottom:112px;transform:translate(-50%,12px);font:700 12px ui-monospace,monospace;background:#4c6a39;color:#fff5d4;padding:10px 14px;border:3px solid #304d31;opacity:0;transition:opacity .22s,transform .22s;pointer-events:none;position:fixed;z-index:5;white-space:nowrap;box-shadow:4px 4px 0 #3c2a1b88}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #day{left:22px;bottom:20px;font:800 11px ui-monospace,monospace;color:#63432c}
+  #skip{left:22px;bottom:67px;color:var(--ink);font:800 12px ui-monospace,monospace;cursor:pointer;transition:transform .17s,background .17s}
+  #skip:hover{transform:translateY(-3px);background:#ffe6a3}
+  #hint{right:22px;bottom:20px;font-size:11px;color:#62462c;text-align:right;line-height:1.65}
+  #order{right:20px;top:150px;width:232px;font-size:13px;line-height:1.55;background:#f9e5b9}
+  #order::before{content:'TODAY’S BASKET  /  今日采收';display:block;font:800 10px ui-monospace,monospace;color:#97613a;letter-spacing:.04em;margin-bottom:5px}
+  #order strong{display:block;color:#405f38;font-size:17px;margin-bottom:3px}
+  #order-progress{height:10px;background:#d7bf8e;border:2px solid #a37d4b;margin:9px 0 6px;overflow:hidden}
+  #order-fill{height:100%;width:0;background:#86a855;transition:width .4s steps(8)}#order small{color:var(--dim);font-size:11px}
+  #season button:focus-visible,.seed:focus-visible,#home:focus-visible,#skip:focus-visible{outline:3px solid #fff5dc;outline-offset:3px}
+  @media(max-width:680px){#ttl{left:8px;top:8px;padding:8px 10px;font-size:17px}#ttl::before{font-size:8px}#ttl small{font-size:9px}#hud{right:8px;top:8px;font-size:10px}#hud span{padding:9px 5px}#home{left:8px;top:82px;font-size:10px}#season{right:8px;top:102px;padding:4px;gap:3px}#season .label{display:none}#season button{min-width:36px;padding:5px 2px;font-size:10px}#order{top:163px;right:8px;width:171px;font-size:11px;padding:8px}#order::before{font-size:8px}#order strong{font-size:13px}#order small{font-size:9px}#bar{bottom:8px;padding:5px;gap:4px}.seed{width:51px;padding:4px 1px}.seed .ic{font-size:17px}.seed .nm{font-size:10px}.seed .pr{font-size:9px}#skip{left:8px;bottom:100px;font-size:10px;padding:7px}#day{left:8px;bottom:65px;font-size:10px}#hint{display:none}#toast{bottom:92px;font-size:10px}}
+  @media(max-height:560px){#order{top:105px}#season{top:60px}#hint,#day{display:none}}
+  @media(prefers-reduced-motion:reduce){#toast,.seed,#season button,#home,#skip,#order-fill{transition:none}}
 </style>
 </head>
 <body>
@@ -37,6 +49,7 @@
 <div class="panel" id="ttl">像素农圃<small>播种 · 浇水 · 等一场收获</small></div>
 <a class="panel" id="home" href="index.html">← 回到后院</a>
 <div class="panel" id="hud"><span>DAY <b id="d">1</b></span><span>◈ <b id="c">20</b></span><span>✦ <b id="h">0</b></span></div>
+<div class="panel" id="season" role="group" aria-label="画面季节（仅改变外观）"><span class="label">季节 / SEASON</span><button type="button" data-season="spring" aria-pressed="true">春</button><button type="button" data-season="summer" aria-pressed="false">夏</button><button type="button" data-season="autumn" aria-pressed="false">秋</button><button type="button" data-season="winter" aria-pressed="false">冬</button></div>
 <div class="panel" id="order" aria-live="polite"><strong id="order-name"></strong><span id="order-text"></span><div id="order-progress"><div id="order-fill"></div></div><small id="order-reward"></small></div>
 <div class="panel" id="bar"></div>
 <div id="toast"></div>
@@ -117,6 +130,18 @@ const GROW=8; // 每阶段浇水小时
 let plots=[],coins=20,day=1,hour=8,harv=0,sel=0;
 let cam={x:0,y:0,z:3},drag=null,moved=0;   // z = 像素放大倍数
 const KEY='pixelfarm-v1';
+// 仅视觉偏好另存，不触碰旧种植存档。
+const SEASON_KEY='pixelfarm-season-v1',SEASONS=['spring','summer','autumn','winter'];
+let season='spring',reducedMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+try{const stored=localStorage.getItem(SEASON_KEY);if(SEASONS.includes(stored))season=stored;}catch(e){}
+const motionPreference=matchMedia('(prefers-reduced-motion: reduce)');
+motionPreference.addEventListener('change',e=>{reducedMotion=e.matches;particles.length=0;});
+function setSeason(value){
+  if(!SEASONS.includes(value))return;
+  season=value;
+  document.querySelectorAll('#season button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.season===value)));
+  try{localStorage.setItem(SEASON_KEY,value);}catch(e){}
+}
 let order={id:'wheat',goal:3,done:0,number:1},counts={};
 function nextOrder(n){return {id:SEEDS[(n-1)%SEEDS.length].id,goal:3+Math.floor((n-1)/SEEDS.length),done:0,number:n};}
 
@@ -159,6 +184,8 @@ function drawPlot(p){
   const z=cam.z, s=CELL*z;
   const [cx,cy]=toScreen(p.x,p.y);
   const x=cx-s/2, y=cy-s/2;
+  const sway=(!reducedMotion&&p.s&&p.st>0)?Math.sin(sceneTime*.002+p.x*1.7+p.y*.9)*z*.55:0;
+  const stemX=cx+sway;
   // 土壤棋盘
   const wet=p.w>0;
   px(x,y,s,(p.x+p.y)%2?(wet?PAL.soilWet:PAL.soilB):(wet?PAL.soilWet:PAL.soilA));
@@ -174,34 +201,36 @@ function drawPlot(p){
   }
   const S=SEEDS.find(q=>q.id===p.s);
   // 茎
-  px(cx-z,cy-(4+p.st*4)*z,2*z,(4+p.st*4)*z,PAL.leafD);
+  px(stemX-z,cy-(4+p.st*4)*z,2*z,(4+p.st*4)*z,PAL.leafD);
   // 叶丛
-  if(p.st>=1) drawSprite(SPR.sprout,cx,cy-4*z,PAL.sprout,PAL.sprout);
-  if(p.st>=2) drawSprite(SPR.leaf,cx,cy-6*z,PAL.leaf,PAL.sprout);
+  if(p.st>=1) drawSprite(SPR.sprout,stemX,cy-4*z,PAL.sprout,PAL.sprout);
+  if(p.st>=2) drawSprite(SPR.leaf,stemX,cy-6*z,PAL.leaf,PAL.sprout);
   if(p.st>=3){
-    drawSprite(SPR.bush,cx,cy-8*z,PAL.leafD,PAL.leaf);
+    drawSprite(SPR.bush,stemX,cy-8*z,PAL.leafD,PAL.leaf);
     if(p.s==='pump'){
-      px(cx-6*z,cy-9*z,12*z,7*z,S.cd);px(cx-5*z,cy-10*z,10*z,7*z,S.c);
-      px(cx-z,cy-12*z,2*z,3*z,PAL.leafD);
+      px(stemX-6*z,cy-9*z,12*z,7*z,S.cd);px(stemX-5*z,cy-10*z,10*z,7*z,S.c);
+      px(stemX-z,cy-12*z,2*z,3*z,PAL.leafD);
     }else for(const [ox,oy] of fruitDots(p.s)){
-      px(cx+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,p.s==='wheat'?5*z:3*z,S.cd);
-      px(cx+ox*z-z,cy+oy*z-z,2*z,p.s==='wheat'?4*z:2*z,S.c);
+      px(stemX+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,p.s==='wheat'?5*z:3*z,S.cd);
+      px(stemX+ox*z-z,cy+oy*z-z,2*z,p.s==='wheat'?4*z:2*z,S.c);
     }
   }
   // 渴水标记：一个闪烁的小水滴像素
-  if(p.w<=0&&Math.floor(Date.now()/500)%2===0)
+  if(p.w<=0&&(reducedMotion||Math.floor(sceneTime/500)%2===0))
     px(cx+5*z,cy-12*z,2*z,2*z,'#5ab0e8');
 }
 function drawFence(){
   const z=cam.z;
   const [left,top]=toScreen(0,0),[right,bottom]=toScreen(COLS-1,ROWS-1),size=CELL*z;
-  px(left-size*.5-14*z,top-size*.5-14*z,right-left+size+28*z,bottom-top+size+28*z,'#4a7956');
-  px(left-size*.5-11*z,top-size*.5-11*z,right-left+size+22*z,bottom-top+size+22*z,'#75a977');
+  const ground=['#6b984e','#588c4f','#aa854a','#c6d9de'][SEASONS.indexOf(season)];
+  const rim=['#9abf69','#7daa56','#c49f61','#e7ece3'][SEASONS.indexOf(season)];
+  px(left-size*.5-14*z,top-size*.5-14*z,right-left+size+28*z,bottom-top+size+28*z,ground);
+  px(left-size*.5-11*z,top-size*.5-11*z,right-left+size+22*z,bottom-top+size+22*z,rim);
   for(let i=0;i<90;i++){
     const x=left-size*.5-10*z+((i*47)%(COLS*CELL+19))*z;
     const y=top-size*.5-10*z+((i*61)%(ROWS*CELL+19))*z;
     if(x<left-size*.5||x>right+size*.5||y<top-size*.5||y>bottom+size*.5)
-      px(x,y,z,z,i%3?'#9bca80':'#e4da8c');
+      px(x,y,z,z,season==='winter'?(i%3?'#e7f0ec':'#fff9dd'):i%3?'#9bca80':'#e4da8c');
   }
   for(let x=0;x<=COLS;x++){
     const [cx,cy]=toScreen(x-.5,-.5);
@@ -224,27 +253,53 @@ function drawFence(){
   px(left-size*.5-29*z,bottom+size*.5-9*z,11*z,3*z,'#a9c8a8');
 }
 const stars=Array.from({length:60},()=>({x:Math.random(),y:Math.random()*0.5}));
+const clouds=[{x:.12,y:.15,s:1.1,v:.000009},{x:.52,y:.25,s:.75,v:.000013},{x:.81,y:.11,s:1.3,v:.000007}];
+let sceneTime=0,lastFrame=0,particles=[];
+function burst(gx,gy,colors,count=10){
+  if(reducedMotion)return;
+  const [x,y]=toScreen(gx,gy);
+  for(let i=0;i<count&&particles.length<240;i++)particles.push({x,y:y-cam.z*8,vx:(Math.random()-.5)*2.4,vy:-Math.random()*2.8-1,life:40+Math.random()*20,c:colors[i%colors.length]});
+}
+function drawCloud(x,y,size){
+  const u=Math.max(2,Math.round(cam.z*.75*size));
+  ctx.fillStyle='#f5edd2';ctx.fillRect(Math.round(x+u),Math.round(y+2*u),17*u,3*u);
+  ctx.fillStyle='#fff7df';ctx.fillRect(Math.round(x+3*u),Math.round(y+u),12*u,4*u);
+  ctx.fillRect(Math.round(x+6*u),Math.round(y),6*u,2*u);
+}
 function drawSky(){
+  const tint={spring:['#8dc5ab','#e5dea9','#7daa76','#668e65'],summer:['#78baca','#f6d89b','#91b16c','#5e986b'],autumn:['#e0b183','#f7d4a2','#b89464','#8a855d'],winter:['#b9d6de','#e7e7d9','#c3d5cf','#9cbeb7']}[season];
   const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,PAL.sky0);g.addColorStop(1,PAL.sky1);
+  g.addColorStop(0,tint[0]);g.addColorStop(1,tint[1]);
   ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#8fbb93';ctx.beginPath();ctx.moveTo(0,H*.54);
+  // 像素云随时间缓缓飘过；弱动效偏好下保持静态。
+  for(const cloud of clouds){
+    const x=((cloud.x*W+sceneTime*cloud.v*W)%(W+230))-115;
+    drawCloud(x,cloud.y*H,cloud.s);
+  }
+  ctx.fillStyle=tint[2];ctx.beginPath();ctx.moveTo(0,H*.54);
   for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.54+Math.sin(x*.016)*20);
   ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
-  ctx.fillStyle='#639a73';ctx.beginPath();ctx.moveTo(0,H*.68);
+  ctx.fillStyle=tint[3];ctx.beginPath();ctx.moveTo(0,H*.68);
   for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.67+Math.sin(x*.02+2)*25);
   ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
-  for(const s of stars)px(s.x*W,H*.7+s.y*H*.5,2,4,'#bbd38f');
-  // 白天的像素太阳
-  const mx=W*0.82,my=H*0.16,u=Math.max(2,Math.round(cam.z));
+  for(const s of stars)px(s.x*W,H*.7+s.y*H*.5,2,4,season==='winter'?'#ebf2e9':'#bbd38f');
+  const mx=W*.82,my=H*.16,u=Math.max(2,Math.round(cam.z));
   for(const [ox,oy] of [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[1,3],[2,3]])
-    ctx.fillStyle='#f9e9a6',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
+    ctx.fillStyle=season==='winter'?'#fff9df':'#fff0ac',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
 }
-function draw(){
+function drawParticles(dt){
+  for(const particle of particles){
+    particle.x+=particle.vx*dt;particle.y+=particle.vy*dt;particle.vy+=.11*dt;particle.life-=dt;
+    if(particle.life>0)px(particle.x,particle.y,Math.max(2,Math.round(cam.z)),particle.c);
+  }
+  particles=particles.filter(p=>p.life>0);
+}
+function draw(dt=1){
   drawSky();
   drawFence();
-  for(const p of [...plots].sort((a,b)=>a.y-b.y)) drawPlot(p);
-  if(day%5===0){ctx.fillStyle='#dbf3e077';for(let i=0;i<65;i++)ctx.fillRect((i*113+Date.now()/55)%W,(i*79+Date.now()/35)%H,1,6);}
+  for(const p of plots)drawPlot(p);
+  if(day%5===0){ctx.fillStyle='#ecf3df99';for(let i=0;i<48;i++)ctx.fillRect((i*113+sceneTime/55)%W,(i*79+sceneTime/35)%H,2,7);}
+  drawParticles(dt);
 }
 
 /* ---------- 逻辑 ---------- */
@@ -254,7 +309,7 @@ function tick(){
     if(!p.s||p.dead)continue;
     if(day%5===0)p.w=Math.min(32,p.w+2); // 雨天每小时回潮
     if(p.w>0){p.p++;p.w--;}
-    if(p.p>=GROW&&p.st<3){p.st++;p.p=0;}
+    if(p.p>=GROW&&p.st<3){p.st++;p.p=0;burst(p.x,p.y,['#e5f1ae','#c0d977','#fff2c8'],7);}
     // 干旱只是暂停生长，不再枯死——主页橱窗宜松不宜苛
     if(p.w<=0&&p.st<3){p.dry++;}else p.dry=0;
   }
@@ -269,16 +324,18 @@ function act(p){
     const S=SEEDS[sel];
     if(coins<S.price){flash('◈ 不够');return;}
     coins-=S.price;Object.assign(p,{s:S.id,st:0,p:0,w:32,dry:0});
+    burst(p.x,p.y,['#e9d6a0','#7db565','#fff0c3'],8);
     flash('种下 '+S.nm);
   }else if(p.st>=3){
     const S=SEEDS.find(q=>q.id===p.s);
     const v=Math.round(S.sell*(p.w>0?1:0.6));
+    burst(p.x,p.y,[S.c,'#ffe596','#fff8d5'],16);
     coins+=v;harv++;counts[S.id]=(counts[S.id]||0)+1;Object.assign(p,{s:null,st:0,p:0});
     let message='收获 '+S.nm+' +'+v+'◈';
     if(S.id===order.id){order.done++;if(order.done>=order.goal){const bonus=order.goal*4;coins+=bonus;message+=' · 一篮完成 +'+bonus+'◈';order=nextOrder(order.number+1);}}
     flash(message);
     try{parent.postMessage({type:'farm-harvest',value:v,total:harv},'*');}catch(e){}
-  }else{p.w=Math.min(p.w+16,32);flash('浇透了');}
+  }else{p.w=Math.min(p.w+16,32);burst(p.x,p.y,['#a1d5df','#e3f4ed'],7);flash('浇透了');}
   save();hud();
 }
 
@@ -305,6 +362,8 @@ addEventListener('keydown',e=>{
   if(e.key===' '){e.preventDefault();for(let i=0;i<8;i++)tick();}
 });
 document.getElementById('skip').onclick=()=>{for(let i=0;i<8;i++)tick();};
+document.querySelectorAll('#season button').forEach(button=>button.onclick=()=>setSeason(button.dataset.season));
+setSeason(season);
 
 /* ---------- HUD ---------- */
 const bar=document.getElementById('bar');
@@ -331,12 +390,19 @@ function hud(){
   });
 }
 let tt;
-function flash(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity=1;clearTimeout(tt);tt=setTimeout(()=>t.style.opacity=0,1200);}
+function flash(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1400);}
 
 // 旧存档若把全部零钱用尽且田里无作物，补一包便宜的种子防止死局。
 if(coins<3&&!plots.some(p=>p.s)){coins=4;flash('找到一包麦种 · 补给 4◈');save();}
 rs();hud();
-(function loop(){draw();requestAnimationFrame(loop);})();
+(function loop(now){
+  if(document.hidden){lastFrame=0;requestAnimationFrame(loop);return;}
+  const delta=lastFrame?Math.min((now-lastFrame)/16.67,2):1;
+  lastFrame=now;
+  if(!reducedMotion)sceneTime+=Math.min(delta*16.67,34);
+  draw(reducedMotion?0:delta);
+  requestAnimationFrame(loop);
+})(0);
 </script>
 </body>
 </html>
