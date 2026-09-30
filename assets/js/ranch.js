@@ -24,7 +24,7 @@ const RANCH_RECIPES=[
  {id:'compost',name:'处理堆肥',need:{manure:3},out:'compost',n:2,hours:2,building:'composter'}
 ];
 const RANCH_PRODUCTS=['eggs','duckegg','milk','wool'];
-let ranchEffects=[],ranchMapRect=null,ranchHits=[],ranchHover='';
+let ranchEffects=[];
 const ranchCapacity=zone=>(zone==='birds'?6:4)+(town.ranch.buildings[zone]?2:0);
 const ranchTroughCap=()=>town.ranch.buildings.feeder?32:16;
 const ranchAnimals=zone=>town.ranch.animals.filter(a=>RANCH_TYPES[a.type].zone===zone);
@@ -145,9 +145,7 @@ function renderRanchDialog(place){
 }
 function ranchMeter(name,value){return '<div class="ranch-meter"><span>'+name+' '+value+'/100</span><i><b style="width:'+value+'%"></b></i></div>';}
 normalizeRanch();
-document.getElementById('townContent').addEventListener('click',e=>{const b=e.target.closest('[data-ranch-go]');if(b){const p=b.dataset.ranchGo;if(p==='market')setTownView('town');else if(townView!=='ranch')setTownView('ranch');showTown(p);}});
-const ranchDock=document.createElement('nav');ranchDock.id='ranchDock';ranchDock.setAttribute('aria-label','牧场地点');ranchDock.innerHTML=[['care','照料角'],['adopt','领养'],['work','加工屋'],['build','扩建'],['stock','装货台']].map(([id,name])=>'<button data-ranch-go="ranch-'+id+'">'+name+'</button>').join('');document.body.appendChild(ranchDock);ranchDock.addEventListener('click',e=>{const b=e.target.closest('[data-ranch-go]');if(b)showTown(b.dataset.ranchGo);});
-document.querySelector('#ttl').childNodes[0].textContent='农圃 · 牧场 · 小镇';document.querySelector('#ttl small').textContent='种一片田 · 养一院伙伴';document.title='农圃、河湾牧场与后院小镇';
+document.getElementById('townContent').addEventListener('click',e=>{const b=e.target.closest('[data-ranch-go]');if(b){showTown(b.dataset.ranchGo);}});
 /* 三倍精度像素美术 + 屏幕原生文字，不改变场景坐标和点击范围。 */
 const ranchCanvas=document.createElement('canvas');ranchCanvas.width=1200;ranchCanvas.height=960;const rg=ranchCanvas.getContext('2d');rg.setTransform(3,0,0,3,0,0);let ranchLabels=[];
 const rr=(x,y,w,h,color)=>{rg.fillStyle=color;rg.fillRect(Math.round(x*3)/3,Math.round(y*3)/3,Math.ceil(w*3)/3,Math.ceil(h*3)/3);};
@@ -198,7 +196,6 @@ function ranchSprite(a,p,i){
   else if(!shorn){for(let k=0;k<7;k++){rr(x-8+k*2.66,y-13+(k%2)*3,1.33,1.33,'#fff9e8');rr(x-7+k*2.66,y-7+(k%2)*2,.66,1,'#c7baa1');}rr(x+9,y-16,3,1,'#998674');}
  }
  if(a.ready){rr(x-3,y-28,8,8,'#f4d777');rr(x,y-27,2,4,'#805c39');rr(x,y-21,2,1,'#805c39');}else if(!a.fed)ranchLabel('缺粮水',x,y-23,'#e7b4a0');
- if(ranchHover===a.id)ranchLabel(a.name,x,y-32);
  if(night)ranchLabel('z',x+17,y-20,'#dbe5d2');
  const effect=ranchEffects.find(e=>e.id===a.id);if(effect){ranchLabel(effect.text,x,y-36,'#fff1c8');if(effect.text!=='♥'){if(a.type==='cow'){rr(x+20,y-5,8,10,'#889b98');rr(x+21,y-7,6,2,'#eee6c6');rr(x+21,y-3,6,3,'#fff0d5');}else if(a.type==='sheep'){rr(x+18,y-6,9,2,'#d4d9ca');rr(x+22,y-10,2,10,'#d4d9ca');rr(x+18,y-9,3,3,'#b47457');rr(x+18,y-2,3,3,'#b47457');}else{rr(x+16,y-2,13,7,'#b79559');rr(x+18,y-5,3,4,'#f8e5b6');rr(x+23,y-5,3,4,'#f8e5b6');}}}
 }
@@ -228,24 +225,9 @@ function renderRanchMap(){
  if(r.buildings.composter){rr(157,247,24,20,'#8a7652');rr(159,248,20,9,'#5e5d3e');ranchLabel('堆肥箱',169,239);}
  rr(275,242,62,28,'#bb9360');for(let i=0;i<4;i++)rr(278+i*14,245,11,16,'#e2c691');rr(283,268,5,6,'#5f6551');rr(326,268,5,6,'#5f6551');ranchLabel('装货台',306,233);
  if(r.buildings.water){rr(218,185,7,10,'#749ba0');rr(216,180,11,8,'#b8d0c2');}if(r.buildings.feeder){rr(78,174,16,12,'#b99b62');rr(80,176,12,2,'#e5ca8a');}
- ranchHits=[{x:20,y:36,w:163,h:151,place:'ranch-birds'},{x:221,y:33,w:163,h:155,place:'ranch-herd'},{x:26,y:204,w:128,h:73,place:'ranch-work'},{x:267,y:215,w:82,h:62,place:'ranch-stock'}];
  const animals=r.animals.map((a,i)=>({a,i,p:ranchPosition(a,i)})).sort((a,b)=>a.p.y-b.p.y);ranchEffects=ranchEffects.filter(e=>e.until>sceneTime);
- for(const {a,p,i}of animals){ranchSprite(a,p,i);ranchHits.push({x:p.x-15,y:p.y-26,w:36,h:33,place:'ranch-animal-'+a.id,id:a.id});}
+ for(const {a,p,i}of animals){ranchSprite(a,p,i);}
  if(!r.animals.length)ranchLabel('空院子等一位小伙伴',99,129);
  if(rain&&!reducedMotion)for(let i=0;i<45;i++){const x=(i*47-sceneTime*.02+4000)%400,y=(i*37+sceneTime*.06)%320;rr(x,y,1,5,'#d2e3d366');}
- if(night&&!window.BackyardWorld){rr(0,0,400,320,'#24354c66');ranchLabel('晚安 · 明晨再见',200,307,'#d3dbcd');}else ranchLabel('RIVERBEND / 河湾牧场',202,309,'#e9dfb7');
+ ranchLabel('RIVERBEND / 河湾牧场',202,309,'#e9dfb7');
 }
-function drawRanch(){
- renderRanchMap();
- const night=hour<6||hour>=19;
- ctx.fillStyle=night?'#273e4c':'#dce7c9';ctx.fillRect(0,0,W,H);
- const mobile=W<=680,short=H<=560,top=short?78:mobile?176:W<=1100?167:105,bottom=short?110:mobile?188:135;
- const scale=Math.max(.2,Math.min((W-24)/400,(H-top-bottom)/320,2.3)),x=(W-400*scale)/2,y=top+Math.max(0,(H-top-bottom-320*scale)/2);
- ranchMapRect={x:Math.round(x*DPR)/DPR,y:Math.round(y*DPR)/DPR,scale};ctx.imageSmoothingEnabled=false;ctx.fillStyle='#294838';ctx.fillRect(ranchMapRect.x-4,ranchMapRect.y-4,400*scale+8,320*scale+8);ctx.drawImage(ranchCanvas,ranchMapRect.x,ranchMapRect.y,400*scale,320*scale);drawMapLabels(ranchLabels,ranchMapRect);
-}
-function ranchHit(mx,my){if(!ranchMapRect)return null;const x=(mx-ranchMapRect.x)/ranchMapRect.scale,y=(my-ranchMapRect.y)/ranchMapRect.scale;return [...ranchHits].reverse().find(p=>x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h);}
-cv.addEventListener('pointerdown',e=>{if(window.BackyardWorld)return;if(townView!=='ranch')return;e.stopImmediatePropagation();drag=null;if(townDialogOpen)return;const hit=ranchHit(e.clientX,e.clientY);if(hit)showTown(hit.place);},true);
-cv.addEventListener('pointermove',e=>{if(window.BackyardWorld)return;if(townView!=='ranch')return;e.stopImmediatePropagation();ranchHover=ranchHit(e.clientX,e.clientY)?.id||'';cv.style.cursor=ranchHit(e.clientX,e.clientY)?'pointer':'default';},true);
-cv.addEventListener('pointerup',e=>{if(window.BackyardWorld)return;if(townView==='ranch')e.stopImmediatePropagation();},true);
-cv.addEventListener('wheel',e=>{if(window.BackyardWorld)return;if(townView==='ranch'){e.preventDefault();e.stopImmediatePropagation();}},{capture:true,passive:false});
-addEventListener('keydown',e=>{if(window.BackyardWorld||e.target.matches('input,textarea,select'))return;if(townView!=='ranch'||townDialogOpen)return;if(e.key.toLowerCase()==='b'){e.preventDefault();e.stopImmediatePropagation();showTown('ranch-stock');}},true);

@@ -1,6 +1,6 @@
 "use strict";
 /* =====================================================
-   像素农圃 —— 逐格绘制的像素农场，独立经营核心：存档、种植、仓库与绘制
+   河谷农庄 —— 共用经营核心：存档、种植、仓库与田地绘制
    ===================================================== */
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 let W,H,DPR;
@@ -11,32 +11,12 @@ function rs(){
   cv.style.width=W+'px';cv.style.height=H+'px';
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.imageSmoothingEnabled=false;
-  cam.z=Math.max(1.2,Math.min(4.5,(W-(W>900?400:24))/(COLS*CELL+116),(H-(H<700?210:240))/(ROWS*CELL+100)));
 }
 addEventListener('resize',rs);
-
-/* 地图美术与文字分层：文字按屏幕分辨率绘制，不放大低分辨率字形。 */
-function drawMapLabels(labels,map){
-  ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
-  for(const l of labels){
-    const size=Math.max(11,Math.min(15,9*map.scale));
-    ctx.font='600 '+size+'px "Backyard Sans","PingFang SC","Microsoft YaHei",sans-serif';
-    const width=Math.ceil(ctx.measureText(l.text).width)+14,height=Math.ceil(size)+10;
-    const cx=Math.round((map.x+l.x*map.scale)*DPR)/DPR;
-    const cy=Math.round((map.y+(l.y-5)*map.scale)*DPR)/DPR;
-    const left=Math.round((cx-width/2)*DPR)/DPR,top=Math.round((cy-height/2)*DPR)/DPR;
-    ctx.fillStyle='#263d3b35';ctx.fillRect(left+1,top+2,width,height);
-    ctx.fillStyle=l.bg;ctx.fillRect(left,top,width,height);
-    ctx.strokeStyle='#40533f70';ctx.lineWidth=1/DPR;ctx.strokeRect(left,top,width,height);
-    ctx.fillStyle=l.ink;ctx.fillText(l.text,cx,cy);
-  }
-  ctx.restore();
-}
 
 /* ---------- 调色板 ---------- */
 const PAL={
   soilA:'#6b4f35',soilB:'#5d4429',soilWet:'#453421',soilEdge:'#3a2c1c',
-  sky0:'#a6d6bf',sky1:'#dae7bb',
   sprout:'#7fae4c',leaf:'#5c8a3c',leafD:'#44682e',
   wheat:'#d9b84b',wheatD:'#b3923a',
   tomato:'#c94f4f',tomatoD:'#9c3838',
@@ -44,7 +24,6 @@ const PAL={
   herb:'#6aa87f',herbD:'#4e8160',
   dead:'#6a5a44',
   fence:'#4a3a28',fenceL:'#5d4a34',
-  star:'#e8e0cf',
 };
 
 /* ---------- 像素精灵（位图，1=有色 0=透明） ---------- */
@@ -90,7 +69,7 @@ const SEEDS=[
 ];
 const GROW=8; // 每阶段浇水小时
 let plots=[],coins=20,day=1,hour=8,harv=0,sel=0;
-let cam={x:0,y:0,z:3},drag=null,moved=0;   // z = 像素放大倍数
+let cam={z:3};   // z = 像素放大倍数
 const KEY='pixelfarm-v1';
 // 仅视觉偏好另存，不触碰旧种植存档。
 const SEASON_KEY='pixelfarm-season-v1',SEASONS=['spring','summer','autumn','winter'];
@@ -104,10 +83,10 @@ function setSeason(value){
   document.querySelectorAll('#season button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.season===value)));
   try{localStorage.setItem(SEASON_KEY,value);}catch(e){}
 }
-let store={},compost=0,honey=0,deliveries=0,tool='care',hoverPlot=null,ledgerOpen=false,ledgerStamp='';
+let store={},compost=0,honey=0,deliveries=0,tool='care',ledgerOpen=false,ledgerStamp='';
 let upgrades={can:0,sprinkler:0,hive:0},badges=[];
 let town={v:1,rep:0,stock:{},friends:{},talked:{},gifted:{},buildings:{},requests:[],completed:0,buys:{},fishingDay:0,fishingCount:0,fishSerial:0};
-let townView='farm',townDialogOpen=false;
+let townDialogOpen=false;
 const BADGES=[{id:'first',name:'第一季收成',text:'收获 10 次',ready:()=>harv>=10,reward:25},{id:'variety',name:'一篮四色',text:'四种基础作物各收获 5 次',ready:()=>SEEDS.slice(0,4).every(s=>(counts[s.id]||0)>=5),reward:60},{id:'neighbour',name:'邻里常客',text:'交付 5 篮订单',ready:()=>deliveries>=5,reward:75},{id:'gardener',name:'坡上的园丁',text:'累计收获 60 次',ready:()=>harv>=60,reward:120}];
 let order={id:'wheat',goal:3,done:0,number:1},counts={};
 const availableSeeds=()=>SEEDS.filter(s=>harv>=(s.unlock||0));
@@ -130,14 +109,7 @@ function save(){if(window.backyardStorageError||window.BackyardWorld?.storageBlo
 
 /* ---------- 网格 ---------- */
 const CELL=16; // 一格 16 像素（放大 z 倍）
-function toScreen(gx,gy){
-  return [W/2-(W>900?100:0)+(gx-(COLS-1)/2)*CELL*cam.z+cam.x, H/2+(gy-(ROWS-1)/2)*CELL*cam.z+cam.y];
-}
-function toGrid(mx,my){
-  const gx=(mx-W/2+(W>900?100:0)-cam.x)/(CELL*cam.z)+(COLS-1)/2;
-  const gy=(my-H/2-cam.y)/(CELL*cam.z)+(ROWS-1)/2;
-  return [Math.floor(gx+.5),Math.floor(gy+.5)];
-}
+function toScreen(gx,gy){return BackyardWorld.projectPlot(gx,gy);}
 
 /* ---------- 绘制 ---------- */
 function px(x,y,w,h,c){
@@ -268,48 +240,11 @@ function drawYard(){
  if(!reducedMotion)for(let i=0;i<3;i++){const sx=left+(-32+i*2+Math.sin(sceneTime*.001+i))*z,sy=top+(-62-i*5-(sceneTime*.004)%5)*z;px(sx,sy,(3+i)*z,2*z,'#eee6cd77')}
 
 }
-function drawEvening(){
- const night=Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));if(!night)return;
- ctx.fillStyle='rgba(18,31,56,'+(night*.47)+')';ctx.fillRect(0,0,W,H);
- const z=cam.z,[left,top]=toScreen(-.5,-.5),glow=(x,y,r)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,'rgba(255,223,142,'+night*.45+')');g.addColorStop(1,'rgba(255,223,142,0)');ctx.fillStyle=g;ctx.fillRect(x-r,y-r,r*2,r*2)};
- px(left-34*z,top-30*z,6*z,5*z,'#eac681');glow(left-31*z,top-27*z,22*z);
- for(const [gx,gy]of [[-.7,-.7],[COLS-.3,ROWS-.3]]){const [x,y]=toScreen(gx,gy);px(x-z,y-8*z,2*z,9*z,'#665948');px(x-2*z,y-10*z,4*z,3*z,'#f1d492');glow(x,y-9*z,18*z)}
- if(day%5!==0)for(let i=0;i<7;i++){const x=left+((i*37)%120)*z,y=top+((i*29)%80)*z+(reducedMotion?0:Math.sin(sceneTime*.001+i)*5*z);px(x,y,z,z,'#e9e5a7')}
-}
-const stars=Array.from({length:60},()=>({x:Math.random(),y:Math.random()*0.5}));
-const clouds=[{x:.12,y:.15,s:1.1,v:.000009},{x:.52,y:.25,s:.75,v:.000013},{x:.81,y:.11,s:1.3,v:.000007}];
-let sceneTime=0,lastFrame=0,particles=[];
+let sceneTime=0,particles=[];
 function burst(gx,gy,colors,count=10){
   if(reducedMotion)return;
   const [x,y]=toScreen(gx,gy);
   for(let i=0;i<count&&particles.length<240;i++)particles.push({x,y:y-cam.z*8,vx:(Math.random()-.5)*2.4,vy:-Math.random()*2.8-1,life:40+Math.random()*20,c:colors[i%colors.length]});
-}
-function drawCloud(x,y,size){
-  const u=Math.max(2,Math.round(cam.z*.75*size));
-  ctx.fillStyle='#f5edd2';ctx.fillRect(Math.round(x+u),Math.round(y+2*u),17*u,3*u);
-  ctx.fillStyle='#fff7df';ctx.fillRect(Math.round(x+3*u),Math.round(y+u),12*u,4*u);
-  ctx.fillRect(Math.round(x+6*u),Math.round(y),6*u,2*u);
-}
-function drawSky(){
-  const tint={spring:['#8dc5ab','#e5dea9','#7daa76','#668e65'],summer:['#78baca','#f6d89b','#91b16c','#5e986b'],autumn:['#e0b183','#f7d4a2','#b89464','#8a855d'],winter:['#b9d6de','#e7e7d9','#c3d5cf','#9cbeb7']}[season];
-  const g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,tint[0]);g.addColorStop(1,tint[1]);
-  ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
-  // 像素云随时间缓缓飘过；弱动效偏好下保持静态。
-  for(const cloud of clouds){
-    const x=((cloud.x*W+sceneTime*cloud.v*W)%(W+230))-115;
-    drawCloud(x,cloud.y*H,cloud.s);
-  }
-  ctx.fillStyle=tint[2];ctx.beginPath();ctx.moveTo(0,H*.54);
-  for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.54+Math.sin(x*.016)*20);
-  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
-  ctx.fillStyle=tint[3];ctx.beginPath();ctx.moveTo(0,H*.68);
-  for(let x=0;x<=W+12;x+=12)ctx.lineTo(x,H*.67+Math.sin(x*.02+2)*25);
-  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();
-  for(const s of stars)px(s.x*W,H*.7+s.y*H*.5,2,4,season==='winter'?'#ebf2e9':'#bbd38f');
-  const mx=W*.82,my=H*.16,u=Math.max(2,Math.round(cam.z));
-  for(const [ox,oy] of [[0,0],[1,0],[2,0],[0,1],[1,1],[2,1],[3,1],[0,2],[1,2],[2,2],[1,3],[2,3]])
-    ctx.fillStyle=season==='winter'?'#fff9df':'#fff0ac',ctx.fillRect(mx+ox*u*2,my+oy*u*2,u*2,u*2);
 }
 function drawParticles(dt){
   for(const particle of particles){
@@ -318,17 +253,6 @@ function drawParticles(dt){
   }
   particles=particles.filter(p=>p.life>0);
 }
-function draw(dt=1){
-  if(townView==='town'&&typeof drawTown==='function'){drawTown(dt);return;}
-  if(townView==='ranch'&&typeof drawRanch==='function'){drawRanch(dt);return;}
-  drawSky();
-  drawFence();drawYard();
-  for(const p of plots)drawPlot(p);
-  if(hoverPlot&&!ledgerOpen){const [x,y]=toScreen(hoverPlot.x,hoverPlot.y),s=CELL*cam.z;ctx.strokeStyle='#fff0b7';ctx.lineWidth=Math.max(1,cam.z);ctx.strokeRect(x-s/2,y-s/2,s,s)}
-  if(day%5===0){ctx.fillStyle='#ecf3df99';for(let i=0;i<48;i++)ctx.fillRect((i*113+sceneTime/55)%W,(i*79+sceneTime/35)%H,2,7);}
-  drawEvening();drawParticles(dt);
-}
-
 /* ---------- 经营 ---------- */
 const totalStock=id=>(store[id]||[]).reduce((n,v)=>n+v,0);
 const quality=['普通','银星','金星'],qualityRate=[1,1.25,1.6];
@@ -336,7 +260,7 @@ const cropPrice=(S,q)=>Math.round(S.sell*qualityRate[q]*(marketSeed().id===S.id?
 function takeStock(id,n){const bins=store[id]||[0,0,0];let value=0;const S=SEEDS.find(s=>s.id===id);for(let q=0;q<3&&n>0;q++){const take=Math.min(bins[q],n);bins[q]-=take;n-=take;value+=take*cropPrice(S,q)}return value}
 function sell(id){const n=totalStock(id);if(!n)return;const value=takeStock(id,n);coins+=value;flash('售出 '+n+' 份 · +'+value+'◈');save();hud()}
 function deliver(){const need=Math.max(0,order.goal-order.done);if(totalStock(order.id)<need)return;const value=takeStock(order.id,need),bonus=order.goal*6;coins+=value+bonus;deliveries++;compost+=2;order=nextOrder(order.number+1);flash('订单交付 · +'+(value+bonus)+'◈，堆肥 +2');save();hud()}
-function toggleLedger(){ledgerOpen=!ledgerOpen;document.getElementById('ledger').style.display=ledgerOpen?'block':'none';if(ledgerOpen){drag=null;ledgerStamp='';ledger()}else document.getElementById('workshop').focus({preventScroll:true})}
+function toggleLedger(){ledgerOpen=!ledgerOpen;document.getElementById('ledger').style.display=ledgerOpen?'block':'none';if(ledgerOpen){ledgerStamp='';ledger()}else document.getElementById('worldBagBtn').focus({preventScroll:true})}
 function ledger(){const state=JSON.stringify([day,store,coins,compost,honey,upgrades,badges,harv,counts,deliveries]);if(state===ledgerStamp)return;ledgerStamp=state;
  const canCost=upgrades.can===0?45:90;
  document.getElementById('ledger').innerHTML='<div class="ledger-top"><h2>农圃 · 仓库与工坊</h2><button class="farm-btn" id="closeLedger">收起 ×</button></div><p>收获先入仓：留给订单赚奖金，或直接出售换种子。银星 ×1.25、金星 ×1.6；今日热销 '+marketSeed().nm+' 再加 20%。</p><div class="ledger-grid"><div><h3>收成仓库</h3>'+SEEDS.map(S=>'<div class="stock-row"><span>'+S.nm+' · '+totalStock(S.id)+'<small>'+quality.map((q,i)=>q+' '+(store[S.id]?.[i]||0)).join(' / ')+'</small></span><button class="farm-btn" data-sell="'+S.id+'" '+(totalStock(S.id)?'':'disabled')+'>全部出售</button></div>').join('')+'<div class="stock-row"><span>蜂蜜 · '+honey+'<small>每份 18◈</small></span><button class="farm-btn" id="sellHoney" '+(honey?'':'disabled')+'>出售蜂蜜</button></div><h3>成长手记</h3>'+BADGES.map(b=>'<div class="stock-row"><span>'+b.name+'<small>'+b.text+' · 奖励 '+b.reward+'◈</small></span><button class="farm-btn" data-badge="'+b.id+'" '+(badges.includes(b.id)||!b.ready()?'disabled':'')+'>'+(badges.includes(b.id)?'已完成':b.ready()?'领奖':'成长中')+'</button></div>').join('')+'</div><div><h3>工坊升级</h3><div class="upgrade-row"><span>浇水壶 · '+upgrades.can+' / 2<small>一级浇十字 5 格，二级浇周围 9 格</small></span><button class="farm-btn" data-buy="can" '+(upgrades.can>=2||coins<canCost?'disabled':'')+'>'+ (upgrades.can>=2?'已满级':canCost+'◈')+'</button></div><div class="upgrade-row"><span>晨间喷灌<small>每天 06:00 全田补水至 24</small></span><button class="farm-btn" data-buy="sprinkler" '+(upgrades.sprinkler||coins<120?'disabled':'')+'>'+(upgrades.sprinkler?'已建造':'120◈')+'</button></div><div class="upgrade-row"><span>木蜂箱<small>三株开花作物 → 每日 2 蜂蜜；花期加速</small></span><button class="farm-btn" data-buy="hive" '+(upgrades.hive||coins<160?'disabled':'')+'>'+(upgrades.hive?'已建造':'160◈')+'</button></div><h3>堆肥与照料</h3><p>现有堆肥 '+compost+' 份。订单赠送，或将两份薄荷制成一份堆肥。选择“施肥”后点未成熟作物：生长加速 25%，收成升为金星。</p><button class="farm-btn" id="makeCompost" '+(totalStock('herb')>=2?'':'disabled')+'>2 薄荷 → 1 堆肥</button><p>完成 15 次收获解锁草莓，30 次解锁向日葵。缺水只暂停生长，不会枯死。打开账本时农圃暂停。</p></div></div>';
@@ -348,7 +272,7 @@ function ledger(){const state=JSON.stringify([day,store,coins,compost,honey,upgr
  document.getElementById('sellHoney').onclick=()=>{if(!honey)return;coins+=honey*18;honey=0;save();hud()};
 }
 function tick(){
- if(ledgerOpen||townDialogOpen||window.BackyardWorld?.paused)return;
+ if(!window.BackyardWorld||ledgerOpen||townDialogOpen||BackyardWorld.paused)return;
  hour++;if(hour>=24){hour=0;day++;flash('第 '+day+' 天 · 热销 '+marketSeed().nm)}
  if(typeof townHour==='function')townHour();
  if(hour===6&&upgrades.sprinkler)for(const p of plots)if(p.s&&!p.dead)p.w=Math.max(p.w,24);
@@ -376,37 +300,13 @@ function act(p){
 }
 
 /* ---------- 输入 ---------- */
-cv.addEventListener('pointerdown',e=>{if(window.BackyardWorld)return;if(ledgerOpen)return;cv.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY,cx:cam.x,cy:cam.y};moved=0;});
-cv.addEventListener('pointermove',e=>{
-  if(window.BackyardWorld)return;
-  const [gx,gy]=toGrid(e.clientX,e.clientY);hoverPlot=plots.find(p=>p.x===gx&&p.y===gy)||null;fieldInfo();
-  if(!drag)return;
-  const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-  if(!moved&&Math.abs(dx)+Math.abs(dy)<=5)return;moved=1;
-  cam.x=drag.cx+dx;cam.y=drag.cy+dy;
-});
-cv.addEventListener('pointerup',e=>{
-  if(window.BackyardWorld)return;
-  if(!drag)return;drag=null;if(moved||ledgerOpen)return;
-  const [gx,gy]=toGrid(e.clientX,e.clientY);
-  const p=plots.find(q=>q.x===gx&&q.y===gy);hoverPlot=p||null;
-  if(p)act(p);
-});
-cv.addEventListener('pointercancel',()=>drag=null);cv.addEventListener('pointerleave',()=>{hoverPlot=null;fieldInfo()});
-cv.addEventListener('wheel',e=>{
-  if(window.BackyardWorld)return;
-  e.preventDefault();
-  cam.z=Math.min(7,Math.max(1.5,cam.z*(e.deltaY>0?0.9:1.12)));
-},{passive:false});
 addEventListener('keydown',e=>{
   if(e.target.matches('input,textarea,select'))return;
-  if(window.BackyardWorld){if(window.BackyardWorld.paused)return;if(e.key.toLowerCase()==='b'||e.key==='Escape')return;}
+  if(!window.BackyardWorld||BackyardWorld.paused)return;
   if(e.repeat)return;
-  if(e.key.toLowerCase()==='b'){toggleLedger();return}if(e.key==='Escape'&&ledgerOpen){toggleLedger();return}if(ledgerOpen)return;
   if(e.key>='1'&&e.key<='7'){const i=+e.key-1;if(harv>=(SEEDS[i].unlock||0)){sel=i;tool='care';hud()}}
   if(e.key===' '){e.preventDefault();for(let i=0;i<8;i++)tick()}
 });
-document.getElementById('workshop').onclick=toggleLedger;document.getElementById('deliver').onclick=deliver;
 document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{tool=b.dataset.tool;hud()});
 document.getElementById('skip').onclick=()=>{for(let i=0;i<8;i++)tick();};
 document.querySelectorAll('#season button').forEach(button=>button.onclick=()=>setSeason(button.dataset.season));
@@ -420,19 +320,11 @@ SEEDS.forEach((S,i)=>{
   d.onclick=()=>{if(harv<(S.unlock||0)){flash('收获 '+S.unlock+' 次解锁 '+S.nm);return}sel=i;tool='care';hud();};
   bar.appendChild(d);
 });
-function fieldInfo(){const p=hoverPlot;if(!p){document.getElementById('fieldInfo').textContent=tool==='fertilize'?'堆肥 '+compost+' · 点未成熟作物施肥':tool==='clear'?'铲除模式 · 种子不退回':'收获进仓库 · B 出售与升级';return}const S=SEEDS.find(s=>s.id===p.s);document.getElementById('fieldInfo').textContent=S?S.nm+' · '+(p.st===3?'可收获':Math.min(99,Math.floor((p.st+p.p/(S.grow||GROW))/3*100))+'%')+' · 水分 '+p.w+(p.fert?' · 已施肥':''):('空地 · 种下 '+SEEDS[sel].nm)}
 function hud(){
   document.getElementById('d').textContent=day;
   document.getElementById('c').textContent=coins;
   document.getElementById('h').textContent=harv;
   document.getElementById('day').textContent=String(hour).padStart(2,'0')+':00'+(day%5===0?' · 雨天，田地会自然回潮':' · 晴天');
-  const O=SEEDS.find(S=>S.id===order.id);
-  const need=Math.max(0,order.goal-order.done),held=totalStock(O.id);
-  document.getElementById('order-name').textContent='第 '+order.number+' 篮 · '+O.nm;
-  document.getElementById('order-text').textContent='仓库 '+held+' / '+need+' 份'+(order.done?' · 旧进度已保留':'');
-  document.getElementById('order-fill').style.width=Math.min(100,(held+order.done)/order.goal*100)+'%';
-  document.getElementById('order-reward').textContent='货款 + 奖金 '+order.goal*6+'◈ · 堆肥 ×2';
-  document.getElementById('deliver').disabled=held<need;
   [...bar.children].forEach((d,i)=>{
     const locked=harv<(SEEDS[i].unlock||0);
     d.classList.toggle('on',i===sel&&tool==='care');d.classList.toggle('locked',locked);
@@ -442,7 +334,7 @@ function hud(){
     d.setAttribute('aria-pressed',String(i===sel&&tool==='care'));
   });
   document.querySelectorAll('[data-tool]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.tool===tool)));
-  fieldInfo();if(ledgerOpen)ledger();if(typeof townHud==='function')townHud();
+  if(ledgerOpen)ledger();
 }
 let tt;
 function flash(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1400);}
@@ -450,11 +342,3 @@ function flash(m){const t=document.getElementById('toast');t.textContent=m;t.cla
 // 旧存档若把全部零钱用尽且田里无作物，补一包便宜的种子防止死局。
 if(coins<3&&!plots.some(p=>p.s&&!p.dead)&&!SEEDS.some(s=>totalStock(s.id))&&!honey){coins=4;flash('找到一包麦种 · 补给 4◈');save();}
 rs();hud();
-(function loop(now){
-  if(document.hidden){lastFrame=0;requestAnimationFrame(loop);return;}
-  const delta=lastFrame?Math.min((now-lastFrame)/16.67,2):1;
-  lastFrame=now;
-  sceneTime+=Math.min(delta*16.67,34);
-  if(window.BackyardWorld)window.BackyardWorld.draw(delta);else draw(reducedMotion?0:delta);
-  requestAnimationFrame(loop);
-})(0);

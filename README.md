@@ -13,7 +13,7 @@ cd /workspace/houyuan-personal-site
 python3 -m http.server 8081 --bind 127.0.0.1
 ```
 
-`index.html` 是个人主页，`world.html` 是统一游戏入口。旧的 `farm.html` 地址会转到大世界。`game.html` 保留冒险引擎，进入北山时在世界界面内加载；也支持独立游玩。
+`index.html` 是个人主页，`world.html` 是统一游戏入口。主页的七个场所直接进入对应区域；普通世界入口首次显示操作提示，以后继续当前位置。刷新继续进度，返回主页直接回到场所列表。旧的 `farm.html` 仅保留一次兼容跳转，不再加载旧农圃场景。`game.html` 保留冒险引擎，进入北山时在世界界面内加载；也支持独立游玩。
 
 ## 河谷生活
 
@@ -55,6 +55,7 @@ index.html / world.html / game.html    页面结构与入口
 farm.html                             旧地址兼容
 assets/js/farm.js                      种植、经营存档与仓库
 assets/js/town.js / ranch.js           居民、交易、加工与动物
+assets/js/world-boot.js                首帧加载与失败重试
 assets/js/world.js                     世界行走、寻路、镜头、交互与矿洞衔接
 assets/js/world-art.js                 原创景物、人物与缓存地形
 assets/js/world-data.js                七区地点、树木、钓点与障碍定义
@@ -90,11 +91,14 @@ node --test tests/*.test.cjs
 ```bash
 python3 tests/smoke.py
 python3 tests/outdoors-smoke.py
+python3 tests/navigation-smoke.py
 python3 tests/opening-smoke.py
 # 或 python3 tests/smoke.py http://127.0.0.1:8092/
 ```
 
 浏览器检查使用独立浏览器上下文，覆盖旧存档迁移、真实田地收获与播种、订单、步行、矿洞合成与物资往返、手机地图、减少动态效果、首页随手记与主题。开场检查覆盖原创 Canvas 场景与木门转场、跳过与回看、章节切换、手机布局、键盘焦点、首次访问记忆、减少动态效果、图形资源失败和自动退出。户外检查另外覆盖实际挥斧与再生、套圈计分、兑换、翻牌配对、打靶、手机钓鱼控线、鱼获入库、取消抛竿与刷新恢复。
+
+入口测试覆盖桌面七个场所卡片、手机七个地图地标、慢网首帧、脚本加载失败重试、刷新续玩和旧地址兼容。旧场景绘制、独立切换菜单、无用面板与旧预览图已移除；种植和冒险存档键继续沿用。
 
 如本机尚未安装浏览器测试工具，可使用 `python3 -m pip install playwright` 与 `python3 -m playwright install chromium`；将测试文件中的 `executable_path` 改为本机 Chromium 路径，或使用 Playwright 自带浏览器。
 
@@ -113,4 +117,4 @@ sudo bash install.sh
 
 可选变量：`PORT`、`BRANCH`、`REPO_URL`、`SITE_DIR`（默认 `/var/www/houyuan-personal-site`）、`NGINX_CONF`（默认 `/etc/nginx/conf.d/houyuan-personal-site.conf`）、`BACKUP_DIR`（默认 `/var/backups/houyuan-personal-site`）。部署需要从 GitHub 和系统软件源下载；开放安全组端口、域名与 TLS 由管理员配置。
 
-这次本地重构须先提交到仓库，远端安装器才会部署新版文件。
+安装器从指定分支获取最新代码；提交并推送后，在 VPS 重新运行上面的命令即可更新。

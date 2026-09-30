@@ -10,9 +10,14 @@
   let path=[],pending=null,focusHit=null,region='farm',lastUI=0,lastMap=-Infinity,lastSaved=0;
   let camera={x:player.x,y:player.y,z:innerWidth<680?2.2:3};
   const keys=new Set();
-  let visited=new Set(['farm']), restored=false;
-  try {const s=JSON.parse(localStorage.getItem(SAVE));if(s?.v===1){if(Number.isFinite(s.x)&&Number.isFinite(s.y)){player.x=Math.max(32,Math.min(978,s.x));player.y=Math.max(70,Math.min(840,s.y));}if(Array.isArray(s.visited))visited=new Set(s.visited.filter(k=>regions[k]));restored=true;}}catch (_) {}
+  let visited=new Set(), restored=false;
+  try {const s=JSON.parse(localStorage.getItem(SAVE));if(s?.v===1){if(Number.isFinite(s.x)&&Number.isFinite(s.y)){player.x=Math.max(30,Math.min(1080,s.x));player.y=Math.max(65,Math.min(845,s.y));}if(Array.isArray(s.visited))visited=new Set(s.visited.filter(k=>regions[k]));restored=true;started=s.started===true;}}catch (_) {}
+  const entryURL=new URL(location.href),destination=entryURL.searchParams.get('place');
+  if(Object.prototype.hasOwnProperty.call(regions,destination)){
+    player.x=regions[destination].x;player.y=regions[destination].y;started=true;
+  }
   camera.x=player.x;camera.y=player.y;
+  let welcomeOpen=!started;
   function persist() {
     try {localStorage.setItem(SAVE,JSON.stringify({v:1,x:player.x,y:player.y,visited:[...visited],started}));}
     catch (_) {flash('浏览器存储空间不足，位置暂未保存。');}
@@ -20,7 +25,7 @@
   const icon = name => ({map:'▧',bag:'▣',quests:'☷',home:'⌂',moon:'☾',sun:'☀',leaf:'❧'}[name]||'·');
   const ui=document.createElement('div');ui.id='worldUI';
   ui.innerHTML=`
-    <div class="world-brand"><a href="index.html" aria-label="回到个人主页">${icon('home')}</a><div><small>THE BACKYARD VALLEY</small><h1>后院物语<span>河谷里的每一天</span></h1></div></div>
+    <div class="world-brand"><a href="index.html#work" aria-label="回到个人主页">${icon('home')}</a><div><small>THE BACKYARD VALLEY</small><h1>后院物语<span>河谷里的每一天</span></h1></div></div>
     <nav class="world-menu" aria-label="世界菜单"><button id="worldMapBtn" aria-label="打开河谷地图">${icon('map')} <span>地图</span><kbd>M</kbd></button><button id="worldBagBtn">${icon('bag')} <span>背包</span><kbd>B</kbd></button><button id="worldQuestBtn">${icon('quests')} <span>委托</span></button><button id="worldHelpBtn" aria-label="操作帮助">?</button></nav>
     <div id="worldLocation"><span class="location-dot"></span><span id="worldRegion">向阳农庄</span><small id="worldWeather"></small></div>
     <button id="worldMini" aria-label="打开河谷地图"><canvas id="worldMiniCanvas" width="168" height="132"></canvas><span>河谷地图 <kbd>M</kbd></span></button>
@@ -67,7 +72,7 @@
     }
     return [];
   }
-  const paused=()=>!started||mapOpen||caveOpen||townDialogOpen||ledgerOpen||storageBlocked||(!clockAdvancing&&BackyardActivities.busy);
+  const paused=()=>!started||welcomeOpen||mapOpen||caveOpen||townDialogOpen||ledgerOpen||storageBlocked||(!clockAdvancing&&BackyardActivities.busy);
   function nearbyTargets() {
     const targets=[{id:'mine',x:563,y:206,label:'北山矿洞',hint:'木材、石料与矿石会带回河谷',action:enterCave},
       {id:'home',x:147,y:337,label:'农庄小屋',hint:'休息八小时，让田地慢慢生长',action:()=>{for(let i=0;i<8;i++)tick();flash('在小屋休息了一会儿。');}},
@@ -184,16 +189,13 @@
     try {if(!game){if(localStorage.getItem('backyard-transfer-v1'))throw new Error('物资存档仍在恢复中');caveOpen=false;loadingCave=false;storageBlocked=false;$('worldCave').hidden=true;$('caveMount').replaceChildren();return;}game.pause(true);restorePending(game);if(!game.flush())throw new Error('冒险进度未能保存');if(!save())throw new Error('农庄进度未能保存');const result=BackyardStorage.transfer('to-farm');game.applyInventory(result.mine.inv);syncMaterials(result);storageBlocked=false;const n=Object.values(result.moved).reduce((a,b)=>a+b,0),clock=game.clock,elapsed=Math.max(0,Math.min(2400,(clock.day-day)*24+clock.hour-hour));caveOpen=false;for(let i=0;i<elapsed;i++)tick();loadingCave=false;$('worldCave').hidden=true;$('caveMount').replaceChildren();persist();flash(n?'带回 '+n+' 份建材与矿物 · 已放进河谷背包':'回到河谷。田地和小伙伴都在等你。');$('worldBagBtn').focus({preventScroll:true});}
     catch(error){storageBlocked=true;flash('暂时无法结算：'+error.message+'。请保留此页面，重试返回。');}
   }
-  const originalToScreen=toScreen;
-  toScreen=function(gx,gy){return window.BackyardWorld?screen(field.x+(gx+.5)*CELL,field.y+(gy+.5)*CELL):originalToScreen(gx,gy);};
-  window.BackyardWorld={draw,travel,get paused(){return paused();},get storageBlocked(){return storageBlocked;},get position(){return {x:player.x,y:player.y,region};},get caveOpen(){return caveOpen;},leaveCave,project:(x,y)=>screen(x,y),advance(hours){clockAdvancing=true;try{for(let i=0;i<hours;i++)tick();}finally{clockAdvancing=false;}}};
-  setTownView=function(view){travel(view);};
+  window.BackyardWorld={draw,travel,get paused(){return paused();},get storageBlocked(){return storageBlocked;},get position(){return {x:player.x,y:player.y,region};},get caveOpen(){return caveOpen;},leaveCave,project:(x,y)=>screen(x,y),projectPlot:(gx,gy)=>screen(field.x+(gx+.5)*CELL,field.y+(gy+.5)*CELL),advance(hours){clockAdvancing=true;try{for(let i=0;i<hours;i++)tick();}finally{clockAdvancing=false;}}};
   document.title='后院物语 · 河谷里的每一天';
-  $('skip').textContent='歇一会儿 · 8 小时';$('workshop').textContent='收成仓库';$('home').textContent='回到主页';
+  $('skip').textContent='歇一会儿 · 8 小时';
   $('worldMapBtn').onclick=openMap;$('worldMini').onclick=openMap;$('worldBagBtn').onclick=openBag;
   $('worldQuestBtn').onclick=()=>{if(!paused())showTown('board');};$('worldInteract').onclick=interact;
-  $('worldHelpBtn').onclick=()=>{if(BackyardActivities.busy)return;$('worldWelcome').hidden=false;started=false;keys.clear();$('worldStart').focus();};
-  $('worldStart').onclick=()=>{started=true;$('worldWelcome').hidden=true;persist();const destination=new URLSearchParams(location.search).get('place');if(regions[destination]){travel(destination);history.replaceState(null,'',location.pathname);}if(storageBlocked)flash(window.backyardStorageError||'物资存档需要恢复，请刷新页面重试。');};
+  $('worldHelpBtn').onclick=()=>{if(BackyardActivities.busy)return;$('worldWelcome').hidden=false;welcomeOpen=true;keys.clear();$('worldStart').focus();};
+  $('worldStart').onclick=()=>{started=true;welcomeOpen=false;$('worldWelcome').hidden=true;persist();if(storageBlocked)flash(window.backyardStorageError||'物资存档需要恢复，请刷新页面重试。');};
   document.querySelector('[data-close-map]').onclick=closeMap;
   document.querySelectorAll('[data-travel]').forEach(b=>b.onclick=()=>travel(b.dataset.travel));
   $('worldMap').addEventListener('click',e=>{if(e.target===$('worldMap'))closeMap();});
@@ -208,7 +210,7 @@
     const k=e.key.toLowerCase();if(e.target.matches('input,textarea,select'))return;
     if(caveOpen){if(k==='escape'&&!loadingCave)leaveCave();return;}
     if(k==='escape'){if(mapOpen){closeMap();e.stopImmediatePropagation();}else if(ledgerOpen){toggleLedger();e.stopImmediatePropagation();}return;}
-    if(mapOpen||!started){if(k==='tab'){const box=mapOpen?$('worldMap'):$('worldWelcome'),controls=[...box.querySelectorAll('button')],first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}
+    if(mapOpen||welcomeOpen){if(k==='tab'){const box=mapOpen?$('worldMap'):$('worldWelcome'),controls=[...box.querySelectorAll('button')],first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}
     if(townDialogOpen||ledgerOpen)return;
     if(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift'].includes(k)){e.preventDefault();keys.add(k);}
     if(e.repeat){if(k==='e'&&focusHit?.kind==='tree')interact();return;}
@@ -217,6 +219,22 @@
   addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));addEventListener('blur',()=>keys.clear());
   addEventListener('pagehide',persist);
   document.addEventListener('visibilitychange',()=>{keys.clear();if(document.hidden){save();persist();}});
-  $('worldWelcome').hidden=false;$('worldStart').focus();
-  A.bake(season);hud();
+  region=currentRegion();visited.add(region);document.body.dataset.region=region;
+  $('worldRegion').textContent=regions[region].name;
+  $('worldWelcome').hidden=started;
+  if(!started)$('worldStart').focus({preventScroll:true});
+  if(entryURL.searchParams.has('place')){
+    entryURL.searchParams.delete('place');history.replaceState(null,'',entryURL.pathname+entryURL.search+entryURL.hash);
+  }
+  A.bake(season);hud();draw(0);
+  if(started)persist();
+  BackyardBoot.ready();
+  let lastFrame=0;
+  function frame(now){
+    if(document.hidden){lastFrame=0;requestAnimationFrame(frame);return;}
+    const delta=lastFrame?Math.min((now-lastFrame)/16.67,2):1;
+    lastFrame=now;sceneTime+=Math.min(delta*16.67,34);draw(delta);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();

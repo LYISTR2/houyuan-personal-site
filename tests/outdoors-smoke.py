@@ -23,7 +23,7 @@ def open_world(browser,x,y,mobile=False):
       localStorage.setItem('backyard-world-v1',{json.dumps(json.dumps(position))});
       sessionStorage.setItem('outdoors-fixture','1');
     }}""")
-    page.goto(urljoin(BASE,'world.html'));page.locator('#worldStart').click();page.wait_for_timeout(250)
+    page.goto(urljoin(BASE,'world.html'));page.wait_for_function("document.body.dataset.worldState==='ready' && !BackyardWorld.paused");page.wait_for_timeout(250)
     return context,page,errors
 
 def click_world(page,x,y):
@@ -39,7 +39,7 @@ with sync_playwright() as p:
     assert state['town']['stock']['wood']==11,state['town']['stock']
     assert state['town']['stock']['sap']==1
     assert state['hour']==before['hour']+1
-    page.reload();page.locator('#worldStart').click();page.wait_for_timeout(200)
+    page.reload();page.wait_for_function("document.body.dataset.worldState==='ready' && !BackyardWorld.paused");page.wait_for_timeout(200)
     click_world(page,845,220);page.wait_for_timeout(420)
     assert saved(page)['town']['stock']['wood']==11
     assert page.evaluate("BackyardActivities.treeStage('pine-1')")=='stump'
@@ -100,7 +100,7 @@ with sync_playwright() as p:
     assert saved(page)['town']['outdoors']['best']['targets']>=10
     assert saved(page)['town']['outdoors']['parkRewards']==3
     page.screenshot(path='/tmp/backyard-park.png')
-    page.keyboard.press('Escape');page.reload();page.locator('#worldStart').click()
+    page.keyboard.press('Escape');page.reload();page.wait_for_function("document.body.dataset.worldState==='ready' && !BackyardWorld.paused")
     assert saved(page)['town']['seedPackets']['wheat']==3
     assert not errors,errors
     print('PASS ring timing, ticket redemption, memory matching, target hits and saved rewards')
@@ -129,7 +129,7 @@ with sync_playwright() as p:
     assert page.evaluate('document.documentElement.scrollWidth<=innerWidth')
     page.screenshot(path='/tmp/backyard-fishing-mobile.png')
     page.locator('#activityAction').click();assert page.locator('#activityPanel').is_hidden()
-    page.reload();page.locator('#worldStart').click()
+    page.reload();page.wait_for_function("document.body.dataset.worldState==='ready' && !BackyardWorld.paused")
     assert saved(page)['town']['outdoors']['catches']==1
     click_world(page,972,705);page.wait_for_function("BackyardActivities.current?.kind==='fishing'")
     page.keyboard.press('Escape')

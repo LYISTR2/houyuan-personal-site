@@ -8,7 +8,7 @@ PORT="${PORT:-8081}"
 SITE_DIR="${SITE_DIR:-/var/www/houyuan-personal-site}"
 NGINX_CONF="${NGINX_CONF:-/etc/nginx/conf.d/houyuan-personal-site.conf}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/houyuan-personal-site}"
-SITE_FILES=(index.html world.html game.html farm.html farm-font.css farm-ui.woff2 farm-ui-1.woff2 farm-ui-2.woff2 farm-ui-3.woff2 farm-ui-4.woff2 farm-ui-5.woff2 farm-ui-6.woff2 farm-ui-7.woff2 farm-ui-8.woff2 farm-font-license.txt hero-preview.webp project-preview.webp farm-preview.webp)
+SITE_FILES=(index.html world.html game.html farm.html farm-font.css farm-ui.woff2 farm-ui-1.woff2 farm-ui-2.woff2 farm-ui-3.woff2 farm-ui-4.woff2 farm-ui-5.woff2 farm-ui-6.woff2 farm-ui-7.woff2 farm-ui-8.woff2 farm-font-license.txt)
 SITE_DIRS=(assets)
 
 fail() { printf '错误：%s\n' "$*" >&2; exit 1; }

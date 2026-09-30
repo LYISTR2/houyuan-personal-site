@@ -63,25 +63,15 @@ function townHour(){
 }
 refreshRequests();
 const ui=document.createElement('div');
-ui.innerHTML='<nav id="townNav" aria-label="场景切换"><button type="button" data-view="farm" aria-pressed="true">种植园</button><button type="button" data-view="ranch" aria-pressed="false">河湾牧场</button><button type="button" data-view="town" aria-pressed="false">小镇</button></nav><div id="townStatus"></div><div id="townQuick"><button type="button" data-place="board">小镇委托</button><button type="button" data-place="bag">背包</button></div><nav class="panel" id="townPlaces" aria-label="小镇地点"><button type="button" data-place="market">集市</button><button type="button" data-place="people">居民</button><button type="button" data-place="work">加工</button><button type="button" data-place="build">建设</button><button type="button" data-place="river">河岸</button><button type="button" data-place="board">委托</button><button type="button" data-place="bag">背包</button></nav><div id="townShade"><section id="townDialog" role="dialog" aria-modal="true" aria-labelledby="townTitle"><header class="town-heading"><div><small>BACKYARD / RIVERSIDE TOWN</small><h2 id="townTitle"></h2></div><button type="button" id="townClose" aria-label="关闭小镇窗口">收起 ×</button></header><div class="town-content" id="townContent"></div></section></div>';
+ui.innerHTML='<div id="townShade"><section id="townDialog" role="dialog" aria-modal="true" aria-labelledby="townTitle"><header class="town-heading"><div><small>BACKYARD / RIVERSIDE TOWN</small><h2 id="townTitle"></h2></div><button type="button" id="townClose" aria-label="关闭小镇窗口">收起 ×</button></header><div class="town-content" id="townContent"></div></section></div>';
 document.body.appendChild(ui);
-document.title='像素农圃与后院小镇';
-document.querySelector('#ttl').childNodes[0].textContent='农圃与小镇';
-document.querySelector('#ttl small').textContent='种一片田 · 认识一条街的人';
-let activePlace='',returnFocus=null,townHover='',mapRect=null;
-function setTownView(view){
- if(townDialogOpen)closeTown();if(ledgerOpen)toggleLedger();townView=['farm','ranch','town'].includes(view)?view:'farm';
- document.body.dataset.townView=townView;drag=null;hoverPlot=null;
- document.querySelectorAll('[data-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.view===townView)));
- townHud();
-}
-function townHud(){document.getElementById('townStatus').textContent=townView==='ranch'&&typeof ranchStatus==='function'?ranchStatus():townView==='town'?townRank()+' · 声望 '+town.rep+' · 点房屋 / 居民互动':townRank()+' · 委托 '+town.requests.filter(q=>!q.done).length+' 件 · 声望 '+town.rep;}
+let activePlace='',returnFocus=null;
 function closeTown(){townDialogOpen=false;document.getElementById('townShade').classList.remove('open');activePlace='';returnFocus?.focus({preventScroll:true});}
 const btn=(label,action,data='',disabled=false,secondary=false)=>'<button class="town-action'+(secondary?' secondary':'')+'" type="button" data-action="'+action+'" data-id="'+data+'" '+(disabled?'disabled':'')+'>'+label+'</button>';
 const intro=text=>'<p class="town-intro">'+text+'</p>';
 const personBy=id=>PEOPLE.find(p=>p.id===id);
 function showTown(place,focus=true){
- if(!townDialogOpen){returnFocus=document.activeElement;drag=null;if(ledgerOpen)toggleLedger();}
+ if(!townDialogOpen){returnFocus=document.activeElement;if(ledgerOpen)toggleLedger();}
  document.querySelector('#townDialog .town-heading small').textContent=place.startsWith('ranch-')?'BACKYARD / RIVERBEND RANCH':'BACKYARD / RIVERSIDE TOWN';
  activePlace=place;townDialogOpen=true;refreshRequests();
  const titles={market:'树荫集市',people:'街坊与朋友',work:'磨坊与街角厨房',build:'一起建设小镇',river:'石溪河岸',board:'居民委托板',bag:'小镇背包'};
@@ -126,7 +116,7 @@ function showTown(place,focus=true){
   for(const s of SEEDS)html+='<div class="town-row"><span>'+s.nm+'<small>种子包 '+town.seedPackets[s.id]+' · 收成 '+amount(s.id)+'</small></span></div>';
   html+='<div class="town-row"><span>蜂蜜</span><b>'+honey+'</b></div></section></div>';
  }
- document.getElementById('townContent').innerHTML=html;document.getElementById('townShade').classList.add('open');if(focus)document.getElementById('townClose').focus({preventScroll:true});townHud();
+ document.getElementById('townContent').innerHTML=html;document.getElementById('townShade').classList.add('open');if(focus)document.getElementById('townClose').focus({preventScroll:true});
 }
 const boughtToday=id=>town.buys[id]?.day===day?town.buys[id].n:0;
 function buyPrice(id){const seed=id.startsWith('seed-')?SEEDS.find(s=>s.id===id.slice(5)):null;const base=seed?seed.price*.85:GOODS[id]?.buy;return Math.max(1,Math.round(base*(town.rep>=25?.9:1)));}
@@ -161,23 +151,18 @@ function townAction(action,id){
  }
  save();hud();if(message)flash(message);showTown(activePlace,false);
 }
-document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setTownView(b.dataset.view));
-document.querySelectorAll('[data-place]').forEach(b=>b.onclick=()=>showTown(b.dataset.place));
 document.getElementById('townClose').onclick=closeTown;
 document.getElementById('townShade').addEventListener('pointerdown',e=>{if(e.target.id==='townShade')closeTown();});
 document.getElementById('townContent').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&!b.disabled)townAction(b.dataset.action,b.dataset.id);});
 addEventListener('keydown',e=>{
  if(townDialogOpen){e.stopImmediatePropagation();if(e.key==='Escape'){e.preventDefault();closeTown();return;}if(e.key==='Tab'){const controls=[...document.querySelectorAll('#townDialog button:not(:disabled), #townDialog input')],first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}
- if(window.BackyardWorld)return;
- if(e.repeat)return;if(e.key.toLowerCase()==='m'){e.preventDefault();e.stopImmediatePropagation();setTownView(['farm','ranch','town'][(['farm','ranch','town'].indexOf(townView)+1)%3]);}
- if(townView==='town'&&e.key.toLowerCase()==='b'){e.preventDefault();e.stopImmediatePropagation();showTown('bag');}
 },true);
 const MAP_W=420,MAP_H=300,townCanvas=document.createElement('canvas');townCanvas.width=MAP_W*3;townCanvas.height=MAP_H*3;const tg=townCanvas.getContext('2d');tg.setTransform(3,0,0,3,0,0);let townLabels=[];
 const LANDMARKS=[{id:'market',x:98,y:90,w:69,h:49,name:'树荫集市',roof:'#bc6f5e'},{id:'mill',x:188,y:72,w:42,h:58,name:'旧磨坊',roof:'#9e8560',facility:'mill',place:'work'},{id:'kitchen',x:258,y:90,w:61,h:48,name:'街角厨房',roof:'#617e9b',facility:'kitchen',place:'work'},{id:'board',x:160,y:161,w:24,h:25,name:'委托板',roof:'#be9a62'},{id:'coop',x:72,y:232,w:40,h:34,name:'后院鸡舍',roof:'#ad8952',facility:'coop',place:'build'},{id:'barn',x:289,y:235,w:49,h:40,name:'牧场牛棚',roof:'#8e7593',facility:'barn',place:'build'},{id:'river',x:345,y:157,w:38,h:64,name:'石溪河岸',roof:'#8eb7bd'}];
 const personPositions=()=>PEOPLE.map((p,i)=>{const base=[[120,148],[267,143],[223,213],[337,205]][i],moving=reducedMotion?0:Math.sin(sceneTime*.00045+i*1.8)*9;return {...p,x:base[0]+moving,y:base[1]+(reducedMotion?0:Math.cos(sceneTime*.00035+i)*4)};});
 const rect=(x,y,w,h,c)=>{tg.fillStyle=c;tg.fillRect(Math.round(x*3)/3,Math.round(y*3)/3,Math.round(w*3)/3,Math.round(h*3)/3);};
 function tree(x,y,c='#648957',small=false){const k=small?.7:1;rect(x-2,y,4,14*k,'#6a5a40');rect(x-13*k,y-15*k,26*k,14*k,'#496d4d');rect(x-10*k,y-22*k,20*k,17*k,c);rect(x-6*k,y-25*k,12*k,9*k,c);rect(x-9*k,y-18*k,7*k,2*k,'#a6bb79');rect(x+3*k,y-7*k,8*k,3*k,'#54754d');}
-function citizen(p){const x=p.x,y=p.y;rect(x-4,y+1,9,3,'#4d715c66');rect(x-3,y-11,6,7,p.color);rect(x-2,y-16,5,5,'#e4b992');rect(x-3,y-18,7,3,p.id==='mian'?'#f2dfbd':'#665346');rect(x-2,y-4,2,6,'#4b5654');rect(x+2,y-4,2,6,'#4b5654');rect(x-5,y-10,2,5,'#d2a480');rect(x+4,y-10,2,5,'#d2a480');rect(x+2,y-14,1,1,'#413c31');if(townHover===p.id){label(p.name,x,y-28,'#f8eecf');}}
+function citizen(p){const x=p.x,y=p.y;rect(x-4,y+1,9,3,'#4d715c66');rect(x-3,y-11,6,7,p.color);rect(x-2,y-16,5,5,'#e4b992');rect(x-3,y-18,7,3,p.id==='mian'?'#f2dfbd':'#665346');rect(x-2,y-4,2,6,'#4b5654');rect(x+2,y-4,2,6,'#4b5654');rect(x-5,y-10,2,5,'#d2a480');rect(x+4,y-10,2,5,'#d2a480');rect(x+2,y-14,1,1,'#413c31');}
 function label(text,x,y,bg='#f3e2b6',ink='#405348'){townLabels.push({text,x,y,bg,ink});}
 function house(b){const built=!b.facility||town.buildings[b.facility],x=b.x,y=b.y,w=b.w,h=b.h;
  if(b.id==='board'){rect(x-2,y+h-2,w+4,4,'#62805b55');rect(x+2,y+5,3,h,'#7a6147');rect(x+w-6,y+5,3,h,'#7a6147');rect(x,y,w,19,'#674f37');rect(x+2,y+2,w-4,15,'#bd9a66');for(let i=0;i<3;i++){rect(x+4+i*6,y+5,4,8,'#e8ddad');rect(x+5+i*6,y+7,2,1,'#82977a');}return;}
@@ -221,27 +206,16 @@ function renderTownMap(){
  for(let i=0;i<town.cows;i++){const x=303+i*16,y=283;rect(x-5,y-7,13,7,'#efe8cb');rect(x+6,y-10,6,7,'#e7dfbd');rect(x-2,y-6,4,4,'#766b60');rect(x-4,y,2,5,'#655f54');rect(x+5,y,2,5,'#655f54');}
  for(const p of personPositions())citizen(p);
  label('后院小镇',MAP_W/2,27,'#345873','#f5e7bb');
- for(const b of LANDMARKS){const text=b.id==='river'?'石溪河岸':b.name+(b.facility&&!town.buildings[b.facility]?' · 待修复':'');label(text,b.x+b.w/2,b.id==='river'?b.y+12:b.y-10,townHover===b.id?'#f9ecc2':'#e4d7b1');}
- const night=window.BackyardWorld?0:Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));if(night){rect(0,0,MAP_W,MAP_H,'rgba(24,43,72,'+night*.5+')');for(const [x,y]of [[87,147],[313,148],[187,221],[132,115],[289,112]]){const g=tg.createRadialGradient(x,y,1,x,y,22);g.addColorStop(0,'rgba(255,223,145,'+night*.56+')');g.addColorStop(1,'rgba(255,223,145,0)');tg.fillStyle=g;tg.fillRect(x-22,y-22,44,44);}}
+ for(const b of LANDMARKS){const text=b.id==='river'?'石溪河岸':b.name+(b.facility&&!town.buildings[b.facility]?' · 待修复':'');label(text,b.x+b.w/2,b.id==='river'?b.y+12:b.y-10,'#e4d7b1');}
+
  if(day%5===0&&!reducedMotion){for(let i=0;i<45;i++)rect((i*73+sceneTime*.008)%420,(i*37+sceneTime*.019)%300,1,4,'#eff3d988');}
 }
-function drawTown(){
- renderTownMap();
- const night=hour<6||hour>=19;
- ctx.fillStyle=night>.3?'#253e50':'#cbd5b1';ctx.fillRect(0,0,W,H);
- const top=H<560?78:W<680?182:W<1100?173:111,bottom=H<560?110:W<680?150:105,scale=Math.max(.4,Math.min((W-20)/MAP_W,(H-top-bottom)/MAP_H,2.7)),mw=MAP_W*scale,mh=MAP_H*scale,x=(W-mw)/2,y=top+Math.max(0,(H-top-bottom-mh)/2);
- mapRect={x:Math.round(x*DPR)/DPR,y:Math.round(y*DPR)/DPR,scale};ctx.imageSmoothingEnabled=false;ctx.drawImage(townCanvas,mapRect.x,mapRect.y,mw,mh);
- ctx.strokeStyle='#3e5d49';ctx.lineWidth=2;ctx.strokeRect(mapRect.x-2,mapRect.y-2,mw+4,mh+4);drawMapLabels(townLabels,mapRect);
-}
-function townHit(mx,my){if(!mapRect)return null;const x=(mx-mapRect.x)/mapRect.scale,y=(my-mapRect.y)/mapRect.scale;for(const p of personPositions())if(Math.abs(x-p.x)<11&&Math.abs(y-p.y+8)<15)return {id:p.id,place:'people'};for(const b of LANDMARKS)if(x>b.x-6&&x<b.x+b.w+6&&y>b.y-18&&y<b.y+b.h+13)return {id:b.id,place:b.facility&&!town.buildings[b.facility]?'build':b.place||b.id};return null;}
-for(const event of ['pointerdown','pointermove','pointerup','wheel'])cv.addEventListener(event,e=>{if(window.BackyardWorld)return;if(townDialogOpen){e.stopImmediatePropagation();return;}if(townView!=='town')return;e.stopImmediatePropagation();if(event==='wheel'){e.preventDefault();return;}const hit=townHit(e.clientX,e.clientY);townHover=hit?.id||'';cv.style.cursor=hit?'pointer':'default';if(event==='pointerup'&&hit)showTown(hit.place);},{capture:true,passive:false});
 // 让作物选择用原创像素小图，而不是各平台外观不同的 emoji。
 function seedIcon(s){const c=document.createElement('canvas');c.width=20;c.height=22;const g=c.getContext('2d');g.fillStyle='#577b49';g.fillRect(9,8,2,12);g.fillRect(4,12,6,3);g.fillRect(11,9,5,3);g.fillStyle=s.cd;g.fillRect(5,2,10,8);g.fillStyle=s.c;g.fillRect(6,1,8,8);g.fillStyle='#f3e4b7';g.fillRect(7,2,2,2);return c.toDataURL();}
 for(let i=0;i<bar.children.length;i++){const s=SEEDS[i],ic=bar.children[i].querySelector('.ic');ic.innerHTML='<img alt="" src="'+seedIcon(s)+'" width="20" height="22" style="image-rendering:pixelated;display:block;margin:auto">';}
-// 农圃场景增加街区远景与细节，不替换原来的田地坐标。
-const drawOriginalSky=drawSky,drawOriginalYard=drawYard;
-drawSky=function(){drawOriginalSky();const z=Math.max(1,cam.z*.65);for(let i=0;i<7;i++){const x=25+i*(W/7),y=H*.46+Math.sin(i*1.7)*11;px(x,y,29*z,17*z,'#86927b');px(x-2*z,y-5*z,33*z,7*z,i%2?'#798e8b':'#9b927b');px(x+11*z,y+7*z,6*z,10*z,'#707f72');px(x+3*z,y+4*z,4*z,4*z,'#d6c99a');}};
+// 给大世界里的农庄小院补充石板、花丛与收成箱。
+const drawOriginalYard=drawYard;
 drawYard=function(){drawOriginalYard();const z=cam.z,[x,y]=toScreen(-.5,-.5),r=(a,b,w,h,c)=>px(x+a*z,y+b*z,w*z,h*z,c);for(let i=0;i<8;i++){r(-10+i*17,-15,9,3,'#c6b590');r(-9+i*17,-12,7,1,'#968d6a');}for(let i=0;i<5;i++){r(-49+i*5,84+(i%2)*3,3,2,'#a8c58e');r(-48+i*5,82+(i%2)*3,2,2,i%2?'#e4b7aa':'#efe0a2');}r(126,99,13,8,'#ac8961');r(127,98,11,2,'#d1ad7a');r(129,95,3,4,'#d8a15b');r(134,94,3,5,'#85a364');};
-setTownView('farm');townHud();save();
+save();
 
 document.getElementById('townContent').addEventListener('click',e=>{if(e.target.closest('[data-farm-deliver]')){deliver();showTown('board',false);}});
