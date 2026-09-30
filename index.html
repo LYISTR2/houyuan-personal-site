@@ -23,21 +23,18 @@
 <section class="section notes" id="notes" aria-labelledby="notes-title"><div><div class="label">A NOTE TO MYSELF</div><h2 id="notes-title">今天，留一句话。</h2><p>不用写得像日记。想到什么就记什么，完成了可以点一下划掉。不想留下，也可以删掉。</p></div><div class="note-card"><label for="capIn">写在这台设备上的随手记</label><form id="noteForm" class="note-form"><input id="capIn" name="note" maxlength="80" autocomplete="off" placeholder="此刻想记住什么？" aria-label="随手记内容"><button type="submit">记下来</button></form><p class="privacy">仅保存在当前浏览器，不会公开，也不会同步到其他设备。</p><ul class="note-list" id="capList" aria-live="polite"></ul></div></section>
 </main><footer class="end"><span><b>后院</b> · lyistr 的个人角落</span><span>留点空间，给下一件会发生的事。</span></footer></div>
 <section class="opening" id="opening" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="openingTitle">
-  <div class="opening-screen" id="openingScreen">
-    <canvas id="openingGarden" aria-hidden="true"></canvas>
-    <div class="opening-fallback" aria-hidden="true"><div class="garden-path"></div><div class="garden-ring"></div><span class="garden-fern garden-fern--left"></span><span class="garden-fern garden-fern--right"></span><i></i><i></i><i></i><i></i></div>
-    <div class="opening-vignette" aria-hidden="true"></div><div class="opening-grain" aria-hidden="true"></div>
-    <div class="opening-brand">后院 <span>LYISTR / AFTER DARK</span></div>
-    <div class="opening-chapter opening-chapter--start is-visible"><div class="opening-text"><span class="opening-kicker">A small world, after dark</span><h2 class="opening-title" id="openingTitle" aria-label="后院，灯亮了。"><span class="opening-line" aria-hidden="true" data-split>后院，</span><span class="opening-line" aria-hidden="true" data-split>灯亮了。</span></h2><p class="opening-detail">天黑以后，提着灯，沿着小路走走。<br>有些小日子，值得慢慢经过。</p></div></div>
-    <div class="opening-chapter"><div class="opening-text"><span class="opening-kicker">A little life in the valley</span><h2 class="opening-title">把日子，<br>种进土里。</h2><p class="opening-detail">田里的新芽，小院的伙伴。<br>从第一粒种子，慢慢长成自己的生活。</p><dl class="opening-spec"><dt>这一站</dt><dd>向阳农庄 · 河湾牧场</dd><dt>带上</dt><dd>种子、一点耐心</dd></dl></div></div>
-    <div class="opening-chapter opening-chapter--right"><div class="opening-text"><span class="opening-kicker">Where the river slows</span><h2 class="opening-title">听一会儿，<br>河的声音。</h2><p class="opening-detail">去柳树下等鱼咬钩，去青杉林带回木材。<br>经过游乐园，再玩一局。</p><dl class="opening-spec"><dt>这一站</dt><dd>柳荫钓鱼湾 · 青杉伐木林</dd><dt>顺路</dt><dd>风车游乐园</dd></dl></div></div>
-    <div class="opening-chapter"><div class="opening-text"><span class="opening-kicker">A lantern for the road</span><h2 class="opening-title">灯往前，<br>走远一点。</h2><p class="opening-detail">带一盏灯，去北山看看。<br>回来时，把收获带给河岸的邻居。</p><dl class="opening-spec"><dt>这一站</dt><dd>北山矿洞 · 石溪小镇</dd><dt>带回</dt><dd>矿石、故事，还有下一天</dd></dl></div></div>
-    <div class="opening-chapter opening-chapter--end"><div class="opening-text"><span class="opening-kicker">Welcome to the backyard</span><h2 class="opening-title">请进后院。</h2><p class="opening-detail">玩一会儿，种一点东西。<br>或者，给今天留一句话。</p><button id="openingEnter" type="button" class="opening-enter">灯在前面，进去看看 <span aria-hidden="true">↗</span></button></div></div>
-    <div class="opening-walk" aria-hidden="true"><span>沿着小路，进门</span><i></i></div>
+  <div class="opening-screen">
+    <div class="opening-fallback" aria-hidden="true"></div>
+    <canvas id="openingValley" aria-hidden="true"></canvas>
+    <div class="opening-shade" aria-hidden="true"></div>
+    <div class="opening-postmark" aria-hidden="true"><span>后院来信</span><small>A LITTLE PLACE TO COME HOME</small></div>
+    <div class="opening-heading"><span class="opening-leaf" aria-hidden="true"></span><p class="opening-eyebrow">THE BACKYARD VALLEY</p><h2 id="openingTitle">后院</h2><p class="opening-caption" id="openingCaption">星光落在河谷。</p><span class="opening-rule" aria-hidden="true"></span></div>
+    <div class="opening-invitation" id="openingInvitation" inert aria-hidden="true"><p>每一盏灯，都有一个小故事。</p><button id="openingEnter" type="button">推开木门，回到后院 <span aria-hidden="true">→</span></button></div>
   </div>
-  <div class="opening-veil" id="openingVeil" aria-hidden="true"></div>
-  <nav class="opening-index" aria-label="夜游章节"><button type="button" data-opening-stop="0" aria-label="进门" aria-current="step"><span>进门</span><i></i></button><button type="button" data-opening-stop="1" aria-label="生长"><span>生长</span><i></i></button><button type="button" data-opening-stop="2" aria-label="河岸"><span>河岸</span><i></i></button><button type="button" data-opening-stop="3" aria-label="探路"><span>探路</span><i></i></button><button type="button" data-opening-stop="4" aria-label="抵达"><span>抵达</span><i></i></button></nav>
-  <div class="opening-progress" aria-hidden="true"></div><button class="opening-skip" id="openingSkip" type="button">跳过开场 ↗</button>
+  <div class="opening-doors" aria-hidden="true"><div class="opening-door opening-door--left"><i class="door-brace"></i><i class="door-handle"></i></div><div class="opening-door opening-door--right"><i class="door-brace"></i><i class="door-handle"></i></div></div>
+  <div class="opening-corner opening-corner--top" aria-hidden="true"></div><div class="opening-corner opening-corner--bottom" aria-hidden="true"></div>
+  <footer class="opening-footer"><nav class="opening-stops" aria-label="归家小径"><button type="button" data-opening-stop="0" aria-current="step"><i></i>望星</button><span aria-hidden="true">···</span><button type="button" data-opening-stop="1"><i></i>归途</button><span aria-hidden="true">···</span><button type="button" data-opening-stop="2"><i></i>进门</button></nav><button class="opening-skip" id="openingSkip" type="button">直接进门 ↗</button></footer>
+  <div class="opening-progress" aria-hidden="true"><span></span></div>
 </section>
 <script src="assets/js/site.js"></script>
 <script src="assets/js/opening.js"></script>
