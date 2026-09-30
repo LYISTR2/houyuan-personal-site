@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>像素农圃与后院小镇</title>
+<title>农圃、河湾牧场与后院小镇</title>
 <style>
   :root{--ink:#49341f;--dim:#74573a;--gold:#9e592f;--paper:#f7e8bf;--wood:#775030;--dark:#3c2a1b;--line:#6e482c}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -47,7 +47,8 @@
   @media(max-height:560px){#order{top:110px;font-size:10px}#workshop{top:156px}#fieldInfo{display:none}#ledger{max-height:90vh}#tools{bottom:108px}#ttl small{display:none}}
   @media(prefers-reduced-motion:reduce){#toast,.seed,#season button,#home,#skip,#order-fill{transition:none}}
 </style>
-<link rel="stylesheet" href="farm-town.css?v=town-1">
+<link rel="stylesheet" href="farm-town.css?v=ranch-1">
+<link rel="stylesheet" href="farm-ranch.css?v=ranch-1">
 </head>
 <body>
 <canvas id="cv"></canvas>
@@ -61,7 +62,7 @@
 <div id="toast"></div>
 <div class="panel" id="day"></div>
 <button class="panel" id="skip" type="button">⏩ 快进 8 小时</button>
-<div class="panel" id="hint">1–6 选种 · B 仓库与工坊<br>点空地播种 · 点幼苗浇水 · 点成熟作物收获<br>SPACE 快进 8 小时 · 拖动平移 · 滚轮缩放</div>
+<div class="panel" id="hint">1–7 选种 · B 仓库与工坊<br>点空地播种 · 点幼苗浇水 · 点成熟作物收获<br>SPACE 快进 8 小时 · 拖动平移 · 滚轮缩放</div>
 <script>
 "use strict";
 /* =====================================================
@@ -133,6 +134,7 @@ const SEEDS=[
   {id:'herb',  nm:'薄荷', ic:'🌿', price:3,  sell:7,  c:PAL.herb,  cd:PAL.herbD,  h:2},
   {id:'berry', nm:'草莓', ic:'🍓', price:8, sell:22, c:'#db6b76',cd:'#9d4256',h:3,unlock:15,grow:10},
   {id:'sun', nm:'向日葵', ic:'🌻', price:12,sell:32,c:'#edce6d',cd:'#9e7536',h:4,unlock:30,grow:12},
+  {id:'grass',nm:'牧草',ic:'🌱',price:2,sell:4,c:'#a4c579',cd:'#577b4d',h:2,grow:5},
 ];
 const GROW=8; // 每阶段浇水小时
 let plots=[],coins=20,day=1,hour=8,harv=0,sel=0;
@@ -162,7 +164,7 @@ function nextOrder(n){const crops=availableSeeds();return {id:crops[(n-1)%crops.
 const limit=(value,max=999999)=>Number.isFinite(value)?Math.max(0,Math.min(max,Math.floor(value))):0;
 function init(){plots=[];for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)plots.push({x,y,s:null,st:0,w:0,p:0,dead:0,dry:0,fert:0,care:0});}
 init();
-function save(){try{localStorage.setItem(KEY,JSON.stringify({v:3,plots,coins,day,hour,harv,order,counts,store,compost,honey,deliveries,upgrades,badges,town}));}catch(e){flash('存储不可用，请检查浏览器设置');}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({v:4,plots,coins,day,hour,harv,order,counts,store,compost,honey,deliveries,upgrades,badges,town}));}catch(e){flash('存储不可用，请检查浏览器设置');}}
 (function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.plots)&&d.plots.length===COLS*ROWS){
   plots=plots.map((p,i)=>{const q=d.plots[i];if(!q||q.x!==p.x||q.y!==p.y)return p;return {...p,s:SEEDS.some(S=>S.id===q.s)?q.s:null,st:limit(q.st,3),w:limit(q.w,64),p:Math.max(0,Math.min(24,Number(q.p)||0)),dead:q.dead?1:0,dry:limit(q.dry),fert:limit(q.fert,1),care:limit(q.care,10000)};});
   if(Number.isFinite(d.coins))coins=limit(d.coins);if(Number.isFinite(d.day))day=Math.max(1,limit(d.day));
@@ -229,7 +231,8 @@ function drawPlot(p){
   if(p.st>=2) drawSprite(SPR.leaf,stemX,cy-6*z,PAL.leaf,PAL.sprout);
   if(p.st>=3){
     drawSprite(SPR.bush,stemX,cy-8*z,PAL.leafD,PAL.leaf);
-    if(p.s==='pump'){
+    if(p.s==='grass'){for(let i=0;i<7;i++){const ox=(i-3)*1.5*z;px(stemX+ox,cy-(10+(i%3)*3)*z,z,(8+(i%3)*3)*z,i%2?S.cd:S.c);px(stemX+ox-z,cy-(9+(i%3)*3)*z,3*z,z,S.c);}}
+    else if(p.s==='pump'){
       px(stemX-6*z,cy-9*z,12*z,7*z,S.cd);px(stemX-5*z,cy-10*z,10*z,7*z,S.c);
       px(stemX-z,cy-12*z,2*z,3*z,PAL.leafD);
     }else if(p.s==='sun'){px(stemX-5*z,cy-23*z,10*z,7*z,'#e5b747');px(stemX-3*z,cy-25*z,6*z,11*z,'#f5d774');px(stemX-3*z,cy-22*z,6*z,5*z,'#745133');px(stemX-z,cy-21*z,2*z,2*z,'#ab7943')}
@@ -360,6 +363,7 @@ function drawParticles(dt){
 }
 function draw(dt=1){
   if(townView==='town'&&typeof drawTown==='function'){drawTown(dt);return;}
+  if(townView==='ranch'&&typeof drawRanch==='function'){drawRanch(dt);return;}
   drawSky();
   drawFence();drawYard();
   for(const p of plots)drawPlot(p);
@@ -437,7 +441,7 @@ cv.addEventListener('wheel',e=>{
 addEventListener('keydown',e=>{
   if(e.repeat)return;
   if(e.key.toLowerCase()==='b'){toggleLedger();return}if(e.key==='Escape'&&ledgerOpen){toggleLedger();return}if(ledgerOpen)return;
-  if(e.key>='1'&&e.key<='6'){const i=+e.key-1;if(harv>=(SEEDS[i].unlock||0)){sel=i;tool='care';hud()}}
+  if(e.key>='1'&&e.key<='7'){const i=+e.key-1;if(harv>=(SEEDS[i].unlock||0)){sel=i;tool='care';hud()}}
   if(e.key===' '){e.preventDefault();for(let i=0;i<8;i++)tick()}
 });
 document.getElementById('workshop').onclick=toggleLedger;document.getElementById('deliver').onclick=deliver;
@@ -493,6 +497,7 @@ rs();hud();
   requestAnimationFrame(loop);
 })(0);
 </script>
-<script src="farm-town.js?v=town-1"></script>
+<script src="farm-town.js?v=ranch-1"></script>
+<script src="farm-ranch.js?v=ranch-1"></script>
 </body>
 </html>
