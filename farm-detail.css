@@ -1,0 +1,52 @@
+/* 高清字形独立于像素美术：纸卡、木框保持原样，不使用模糊滤镜。 */
+/* 字形在 farm-font.css 内按字符区间加载，避免整包中文字体。 */
+:root{--farm-type:"Backyard Sans","PingFang SC","Microsoft YaHei",system-ui,sans-serif}
+html,body{font-family:var(--farm-type);text-rendering:optimizeLegibility}
+button,input{font-family:var(--farm-type)}
+canvas{image-rendering:auto}
+#ttl,#ttl small,#home,#hud,#season button,.seed,#toast,#day,#skip,#workshop,#tools button,.farm-btn,#fieldInfo,#focus,#townNav button,#townStatus,#townPlaces button,#townQuick button,.town-heading h2,.town-balance,.town-action,.town-section,#ranchDock button,.ranch-summary,.ranch-name input,#ledger h2,#ledger h3{font-family:var(--farm-type)}
+#ttl{font-weight:700;text-shadow:1px 1px #3c2a1b;letter-spacing:.02em}
+#ttl small{font-size:12px;line-height:1.5;color:#fff0ce}
+#hud{font-size:13px;font-variant-numeric:tabular-nums;font-weight:700}
+#home,#skip,#workshop,#day{font-size:13px}
+#townNav button{font-size:13px;font-weight:700}
+#townStatus{font-size:12px;font-weight:500;line-height:1.55;color:#344c39;background:#fff2d2}
+#townPlaces button,#ranchDock button{font-size:13px;font-weight:700}
+#townQuick button,#tools button,.farm-btn{font-size:12px;font-weight:700}
+#season button{font-size:12px}
+.seed .nm{font-size:12px;font-weight:700}.seed .pr{font-size:11px;opacity:1;color:#67512e}
+#fieldInfo,#hint,#focus{font-size:12px;color:#493921}
+#toast{font-size:13px;line-height:1.65;font-weight:700}
+#order{font-size:14px}#order small{font-size:12px;color:#624a30}
+.town-heading h2{font-size:24px;font-weight:700}
+.town-intro{font-size:14px;line-height:1.85;color:#594b32}
+.town-balance,.ranch-summary{font-size:13px!important;font-weight:600!important}
+.town-card h3{font-size:17px;font-weight:700}
+.town-card p,.town-card small{font-size:13px;color:#645139;line-height:1.8}
+.town-row{font-size:14px}.town-row small{font-size:12px;color:#66553c;line-height:1.8}
+.town-action{font-size:13px;font-weight:700;padding:9px 12px;min-height:40px}
+.town-note{font-size:13px;line-height:1.8}.town-section{font-size:15px;font-weight:700}
+.ranch-profile p,.ranch-pasture,.ranch-name{font-size:14px;line-height:1.8}
+.ranch-meter{font-size:13px}.ranch-meter span{min-width:100px}
+.ranch-animal-link{font-size:14px}.ranch-animal-link small,.ranch-animal-link span{font-size:12px;color:#5d6146}
+.ranch-name input{font-size:16px;font-weight:500}
+#ledger p{font-size:13px;color:#624c33}#ledger h3{font-size:15px;font-weight:700}
+#ledger .stock-row,.upgrade-row{font-size:14px}#ledger .stock-row small,.upgrade-row small{font-size:12px;color:#675337}
+@media(max-width:680px){
+ #ttl{font-size:17px;max-width:172px}#ttl small{font-size:10px}
+ #hud{font-size:10px}#hud span{padding:9px 4px}
+ #townNav{max-width:calc(100vw - 113px)}#townNav button{font-size:11px;padding:7px 6px}
+ #home,#skip,#day,#workshop{font-size:11px}
+ #townStatus,body[data-town-view=ranch] #townStatus{font-size:11px;max-width:calc(100vw - 20px);line-height:1.5}
+ #townPlaces button,#ranchDock button{font-size:11px;padding:9px 7px}
+ #townQuick button,#tools button,.farm-btn{font-size:11px}
+ #townDialog{max-height:90dvh}.town-heading h2{font-size:21px}
+ .town-row{font-size:14px}.town-action{font-size:13px;padding:9px 10px}
+ #fieldInfo{font-size:10px;bottom:178px}#focus{font-size:10px}
+ #order{font-size:12px}#order strong{font-size:14px}#order small{font-size:10px}
+ #order .farm-btn{font-size:11px;padding:5px 7px}
+ .seed .nm{font-size:11px}.seed .pr{font-size:10px}
+ #bar{max-height:104px}#toast{font-size:12px}
+ .ranch-meter{font-size:12px}.ranch-meter span{min-width:94px}
+}
+@media(max-height:560px){#ttl{font-size:17px;padding:8px 12px}#ttl small{display:none}#townStatus{display:none}#townNav button{font-size:12px}}

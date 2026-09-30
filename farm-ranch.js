@@ -148,18 +148,27 @@ normalizeRanch();
 document.getElementById('townContent').addEventListener('click',e=>{const b=e.target.closest('[data-ranch-go]');if(b){const p=b.dataset.ranchGo;if(p==='market')setTownView('town');else if(townView!=='ranch')setTownView('ranch');showTown(p);}});
 const ranchDock=document.createElement('nav');ranchDock.id='ranchDock';ranchDock.setAttribute('aria-label','牧场地点');ranchDock.innerHTML=[['care','照料角'],['adopt','领养'],['work','加工屋'],['build','扩建'],['stock','装货台']].map(([id,name])=>'<button data-ranch-go="ranch-'+id+'">'+name+'</button>').join('');document.body.appendChild(ranchDock);ranchDock.addEventListener('click',e=>{const b=e.target.closest('[data-ranch-go]');if(b)showTown(b.dataset.ranchGo);});
 document.querySelector('#ttl').childNodes[0].textContent='农圃 · 牧场 · 小镇';document.querySelector('#ttl small').textContent='种一片田 · 养一院伙伴';document.title='农圃、河湾牧场与后院小镇';
-/* 独立低分辨率画布，不改农圃摄像机。 */
-const ranchCanvas=document.createElement('canvas');ranchCanvas.width=400;ranchCanvas.height=320;const rg=ranchCanvas.getContext('2d');
-const rr=(x,y,w,h,color)=>{rg.fillStyle=color;rg.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));};
-function ranchLabel(text,x,y,bg='#f4e2b5',ink='#4a543f'){rg.font='bold 8px system-ui,sans-serif';const w=rg.measureText(text).width+12;rr(x-w/2,y-10,w,15,'#304c4055');rr(x-w/2,y-12,w,14,bg);rg.fillStyle=ink;rg.textAlign='center';rg.fillText(text,x,y-2);}
-function ranchFence(x,y,w,h){for(let i=0;i<=w;i+=14){rr(x+i,y,3,9,'#876146');rr(x+i,y,3,2,'#e2c38c');rr(x+i,y+h,3,10,'#876146');rr(x+i,y+h,3,2,'#e2c38c');}for(let i=0;i<h;i+=14){rr(x,y+i,3,9,'#a18155');rr(x+w,y+i,3,9,'#a18155');}rr(x,y+4,w,2,'#b99561');rr(x,y+h+4,w,2,'#b99561');}
+/* 三倍精度像素美术 + 屏幕原生文字，不改变场景坐标和点击范围。 */
+const ranchCanvas=document.createElement('canvas');ranchCanvas.width=1200;ranchCanvas.height=960;const rg=ranchCanvas.getContext('2d');rg.setTransform(3,0,0,3,0,0);let ranchLabels=[];
+const rr=(x,y,w,h,color)=>{rg.fillStyle=color;rg.fillRect(Math.round(x*3)/3,Math.round(y*3)/3,Math.ceil(w*3)/3,Math.ceil(h*3)/3);};
+function ranchLabel(text,x,y,bg='#f4e2b5',ink='#4a543f'){ranchLabels.push({text,x,y,bg,ink});}
+function ranchFence(x,y,w,h){
+ for(const edge of [y,y+h]){rr(x,edge+4,w,2,'#705137');rr(x,edge+4,w,.66,'#efd7a0');rr(x,edge+7,w,1,'#bd955d');for(let i=0;i<=w;i+=14){rr(x+i-.66,edge-1,4,11,'#674d35');rr(x+i,edge,2.66,9,'#ac8452');rr(x+i,edge,2.66,1,'#f1d59c');rr(x+i+1,edge+4,.66,.66,'#594c3e');}}
+ for(let i=12;i<h;i+=14){rr(x,y+i,3,9,'#806343');rr(x+w,y+i,3,9,'#806343');rr(x+.66,y+i,1,7,'#ccaa70');rr(x+w+.66,y+i,1,7,'#ccaa70');}
+}
 function ranchHouse(x,y,w,h,name,roof,built=true){
- rr(x+3,y+3,w,h,'#45574744');rr(x,y,w,h,built?'#ead6a5':'#b2ad89');rr(x,y,w,4,'#a58057');
- for(let i=7;i<h;i+=7)rr(x,y+i,w,1,'#b69b6a');rr(x+w*.4,y+h-20,w*.24,20,'#755d45');rr(x+w*.4+3,y+h-18,w*.18,18,'#514b3a');
- rr(x+6,y+10,11,10,'#6b9ea1');rr(x+7,y+11,9,2,'#b8d1c0');rr(x+11,y+10,1,10,'#e2cca1');
- for(let i=0;i<6;i++){rr(x-4+i*3,y-18-i*3,w+8-i*6,5,built?roof:'#8c8a71');}
- rr(x-4,y-3,w+8,4,'#6d6248');if(hour<6||hour>=19){rr(x+7,y+12,9,6,'#f6d483');rr(x+w*.4+3,y+h-18,w*.18,3,'#e5be71');}
- ranchLabel(name,x+w/2,y-31,built?'#f3dfae':'#d4d5b2');
+ const wall=built?'#e7d2a3':'#aaa78b',shade=built?'#bb9464':'#888b73';
+ rr(x+3,y+4,w,h,'#263d3544');rr(x,y,w,h,shade);rr(x+1,y+1,w-3,h-2,wall);
+ rr(x+1,y+1,3,h-3,'#f3e4be');rr(x+w-5,y+1,4,h-1,'#97774f');
+ for(let row=0;row<h-3;row+=4){rr(x+4,y+row,w-10,.66,'#bf9e72');for(let col=0;col<w-10;col+=13)rr(x+5+col+(row%8?6:0),y+row+1,.66,2.5,'#a5896744');}
+ rr(x+w*.4-2,y+h-22,w*.24+4,23,'#6e5037');rr(x+w*.4,y+h-20,w*.24,20,'#463e31');
+ rr(x+w*.4+1,y+h-19,2,18,'#aa845b');rr(x+w*.4+5,y+h-19,.66,18,'#80674b');rr(x+w*.4+8,y+h-10,1,1,'#e5bd75');
+ const wx=x+7,wy=y+10;rr(wx-2,wy-2,15,14,'#775e42');rr(wx,wy,11,9,'#4d7e88');rr(wx+1,wy+1,9,3,'#a0c7c5');rr(wx+1,wy+5,9,3,'#79a5a8');rr(wx+5,wy,.66,9,'#efdfb3');rr(wx,wy+4,11,.66,'#efdfb3');rr(wx-3,wy+10,17,2,'#967047');
+ for(let row=0;row<7;row++){const rx=x-5+row*3,ry=y-4-row*4,rw=w+10-row*6;rr(rx,ry,rw,4,built?roof:'#8c8a71');rr(rx,ry,rw,.66,built?'#d7b89c':'#b3b29a');rr(rx,ry+3,rw,.66,'#695649');for(let col=5;col<rw;col+=7)rr(rx+col+(row%2?3:0),ry+1,.66,2.5,'#523c3a66');}
+ rr(x+16,y-29,w-32,1.33,'#ead4ab');rr(x-5,y,w+10,2,'#544b39');rr(x,y+h,w,2,'#796748');
+ if(built){rr(x+w-12,y+h-6,9,6,'#987c51');rr(x+w-11,y+h-9,2,5,'#68864b');rr(x+w-6,y+h-8,2,4,'#799252');}
+ if(hour<6||hour>=19){rr(wx+1,wy+1,9,7,'#f6d483');rr(wx+5,wy,.66,9,'#ad8558');rr(x+w*.4+3,y+h-18,w*.18,3,'#e5be71');}
+ ranchLabel(name,x+w/2,y-36,built?'#f3dfae':'#d4d5b2');
 }
 function ranchPosition(a,i){
  const t=RANCH_TYPES[a.type],r=town.ranch,night=hour<6||hour>=19,rain=day%5===0;
@@ -176,12 +185,17 @@ function ranchSprite(a,p,i){
  rr(x-7,y+1,18,3,'#3e60494d');
  if(a.type==='hen'||a.type==='duck'){
   const c=a.type==='hen'?'#edcc77':'#ece7cf';rr(x-6,y-9,12,9,c);rr(x+2,y-15,7,8,c);rr(x+8,y-11,5,2,'#dd9852');rr(x+6,y-13,1,1,'#384b3b');rr(x-4,y-6,5,3,a.type==='hen'?'#d3a256':'#bbc4a7');rr(x-9,y-9,4,3,c);if(a.type==='hen')rr(x+3,y-17,5,3,'#ba6855');rr(x-3,y,2,3+walk,'#b98a4d');rr(x+3,y,2,3-walk,'#b98a4d');
+  if(a.type==='hen'){rr(x-5,y-8,9,.66,'#f9e8aa');rr(x-4,y-3,7,1,'#a87943');for(let k=0;k<3;k++)rr(x-3+k*1.66,y-6,.66,2,'#ad8447');rr(x+3,y-14,4,.66,'#fff1c4');rr(x+5,y-9,1,2,'#c26550');}
+  else{rr(x-5,y-8,9,1,'#fffae2');rr(x-4,y-3,7,.66,'#83947b');rr(x+3,y-14,4,.66,'#ffffff');rr(x+9,y-10,3,.66,'#f6c37f');}
  }else{
   const shorn=a.type==='sheep'&&a.growth===0&&!a.ready,c=shorn?'#c8ad92':t.color;
   rr(x-10,y-15,22,14,c);rr(x+8,y-18,9,11,a.type==='sheep'?'#766756':c);rr(x+15,y-16,1,2,'#3c433a');
   if(a.type==='cow'){rr(x-7,y-13,6,5,'#756b61');rr(x+3,y-10,6,7,'#756b61');rr(x+10,y-21,2,4,'#ad9270');rr(x+16,y-21,2,4,'#ad9270');rr(x+11,y-9,7,3,'#d6a49b');rr(x-13,y-12,2,8,'#a39173');}
   else if(!shorn){rr(x-8,y-18,17,5,c);for(let k=0;k<4;k++)rr(x-9+k*5,y-16,3,2,'#fff4de');}
   rr(x-7,y-2,3,6+walk,'#6c614c');rr(x+7,y-2,3,6-walk,'#6c614c');
+  rr(x-9,y-14,18,.66,'#fff8e2');rr(x-8,y-3,15,1,'#b29d7d');rr(x-7,y+3,3,1,'#423f35');rr(x+7,y+3,3,1,'#423f35');
+  if(a.type==='cow'){rr(x+9,y-18,3,1,'#fff8df');rr(x+13,y-14,1,1,'#fff8df');rr(x+13,y-8,1,.66,'#714c42');rr(x-4,y-2,8,2,'#cda397');rr(x-13,y-5,2,3,'#655c4a');}
+  else if(!shorn){for(let k=0;k<7;k++){rr(x-8+k*2.66,y-13+(k%2)*3,1.33,1.33,'#fff9e8');rr(x-7+k*2.66,y-7+(k%2)*2,.66,1,'#c7baa1');}rr(x+9,y-16,3,1,'#998674');}
  }
  if(a.ready){rr(x-3,y-28,8,8,'#f4d777');rr(x,y-27,2,4,'#805c39');rr(x,y-21,2,1,'#805c39');}else if(!a.fed)ranchLabel('缺粮水',x,y-23,'#e7b4a0');
  if(ranchHover===a.id)ranchLabel(a.name,x,y-32);
@@ -189,10 +203,14 @@ function ranchSprite(a,p,i){
  const effect=ranchEffects.find(e=>e.id===a.id);if(effect){ranchLabel(effect.text,x,y-36,'#fff1c8');if(effect.text!=='♥'){if(a.type==='cow'){rr(x+20,y-5,8,10,'#889b98');rr(x+21,y-7,6,2,'#eee6c6');rr(x+21,y-3,6,3,'#fff0d5');}else if(a.type==='sheep'){rr(x+18,y-6,9,2,'#d4d9ca');rr(x+22,y-10,2,10,'#d4d9ca');rr(x+18,y-9,3,3,'#b47457');rr(x+18,y-2,3,3,'#b47457');}else{rr(x+16,y-2,13,7,'#b79559');rr(x+18,y-5,3,4,'#f8e5b6');rr(x+23,y-5,3,4,'#f8e5b6');}}}
 }
 function drawRanch(){
+ ranchLabels=[];
  const r=town.ranch,w=400,h=320,night=hour<6||hour>=19,rain=day%5===0;
  const grass=['#91af6b','#7d9d60','#afa16b','#c4d5ce'][SEASONS.indexOf(season)];rr(0,0,w,h,grass);
  for(let i=0;i<180;i++){const x=(i*71)%400,y=(i*43)%320;rr(x,y,2,i%3?1:2,season==='winter'?'#e8eee0':i%4?'#9ab776':'#d8cf88');}
- rr(0,198,400,25,'#d4bf90');rr(187,0,24,320,'#d4bf90');for(let i=0;i<64;i++)rr((i*83)%400,201+(i%4)*5,3,1,'#bca779');
+ for(let i=0;i<330;i++){const x=(i*67)%400,y=(i*41)%285;if(x>183&&x<214||y>195&&y<228)continue;rr(x,y,.66,2,'#5f834b');rr(x+1,y+1,.66,1,'#c6d496');if(i%19===0){rr(x,y-1,1.33,1.33,'#e5d6ab');rr(x+.66,y-1,.66,.66,'#c99769');}}
+ rr(0,197,400,28,'#8d9a66');rr(0,199,400,23,'#d4bf90');rr(186,0,26,320,'#a29970');rr(188,0,22,285,'#d4bf90');
+ for(let i=0;i<90;i++){const x=(i*83)%400,y=201+(i%4)*5;rr(x,y,4,2,'#c4ad7f');rr(x,y,4,.66,'#ead8ab');rr(x+4,y+1,.66,2,'#ab9368');}
+ for(let i=0;i<45;i++){const x=190+(i%3)*6,y=i*6;rr(x,y,4,3,'#dccc9e');rr(x,y+3,4,.66,'#b39b73');}
  rr(0,285,400,35,'#719a9c');for(let i=0;i<25;i++)rr((i*47+(!reducedMotion?sceneTime*.007:0))%400,293+i%4*5,9,1,'#a3beb0');
  for(const [x,y]of [[12,29],[384,31],[12,258],[379,265]]){rr(x-2,y,4,18,'#7e6950');rr(x-12,y-20,24,24,'#527451');rr(x-9,y-26,18,22,'#71925d');rr(x-5,y-24,9,2,'#a7b77b');}
  ranchFence(24,87,r.buildings.birds?152:142,93);ranchFence(226,89,r.buildings.herd?152:142,96);
@@ -200,6 +218,9 @@ function drawRanch(){
  ranchHouse(262,49,86,37,'牛羊棚','#a1787d',!!r.buildings.barn);
  if(r.buildings.pond){rr(125,143,47,33,'#a9b790');rr(129,147,39,25,'#75a6a6');rr(133,152,30,2,'#b8d1bd');rr(154,159,8,2,'#b8d1bd');if(r.pond<40)rr(136,163,15,3,'#81976c');}
  else ranchLabel('鸭塘预留地',142,160,'#dce0b8');
+ if(r.buildings.pond){for(let i=0;i<9;i++){const x=130+(i*11)%37,y=147+(i*7)%25;rr(x,y,4,.66,'#cce5d4');}for(const [x,y]of [[125,155],[168,163],[134,173]]){rr(x,y,1,6,'#526f48');rr(x+2,y-2,.66,7,'#79945b');rr(x,y-2,1,2,'#c2af75');}}
+ for(const [x,y]of [[22,68],[373,61],[18,246],[350,255]]){rr(x,y,11,7,'#8d7150');rr(x+1,y+1,9,.66,'#d3b47d');for(let i=0;i<3;i++){rr(x+2+i*3,y-3,.66,4,'#486a43');rr(x+1+i*3,y-5,2,2,i%2?'#d78d88':'#f2d47e');}}
+ rr(108,96,12,8,'#8c7350');rr(109,97,10,.66,'#d5b477');rr(109,100,10,.66,'#65573f');rr(112,96,.66,8,'#624f35');rr(117,96,.66,8,'#624f35');
  for(const [z,x]of [['birds',31],['herd',229]]){const zone=r.zones[z];rr(x,175,29,8,'#836448');rr(x+2,177,25,3,zone.food?'#d3b567':'#675944');rr(x+36,175,23,8,'#6c7d75');rr(x+38,177,19,3,zone.water?'#84b7bd':'#616d60');if(zone.dirt>20)for(let i=0;i<Math.floor(zone.dirt/15);i++)rr(x+10+(i*19)%90,112+(i*17)%40,4,3,'#876e4b');}
  if(r.grazing&&r.buildings.barn){rr(276,181,29,7,grass);rr(302,177,3,13,'#b89768');}
  ranchHouse(35,244,66,27,'加工屋','#667f87',!!r.buildings.workshop);
@@ -216,7 +237,7 @@ function drawRanch(){
  ctx.fillStyle=night?'#273e4c':'#dce7c9';ctx.fillRect(0,0,W,H);
  const mobile=W<=680,short=H<=560,top=short?78:mobile?176:W<=1100?167:105,bottom=short?110:mobile?188:135;
  const scale=Math.max(.2,Math.min((W-24)/400,(H-top-bottom)/320,2.3)),x=(W-400*scale)/2,y=top+Math.max(0,(H-top-bottom-320*scale)/2);
- ranchMapRect={x,y,scale};ctx.imageSmoothingEnabled=false;ctx.fillStyle='#42634b';ctx.fillRect(x-5,y-5,400*scale+10,320*scale+10);ctx.drawImage(ranchCanvas,x,y,400*scale,320*scale);
+ ranchMapRect={x:Math.round(x*DPR)/DPR,y:Math.round(y*DPR)/DPR,scale};ctx.imageSmoothingEnabled=false;ctx.fillStyle='#294838';ctx.fillRect(ranchMapRect.x-4,ranchMapRect.y-4,400*scale+8,320*scale+8);ctx.drawImage(ranchCanvas,ranchMapRect.x,ranchMapRect.y,400*scale,320*scale);drawMapLabels(ranchLabels,ranchMapRect);
 }
 function ranchHit(mx,my){if(!ranchMapRect)return null;const x=(mx-ranchMapRect.x)/ranchMapRect.scale,y=(my-ranchMapRect.y)/ranchMapRect.scale;return [...ranchHits].reverse().find(p=>x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h);}
 cv.addEventListener('pointerdown',e=>{if(townView!=='ranch')return;e.stopImmediatePropagation();drag=null;if(townDialogOpen)return;const hit=ranchHit(e.clientX,e.clientY);if(hit)showTown(hit.place);},true);

@@ -47,8 +47,11 @@
   @media(max-height:560px){#order{top:110px;font-size:10px}#workshop{top:156px}#fieldInfo{display:none}#ledger{max-height:90vh}#tools{bottom:108px}#ttl small{display:none}}
   @media(prefers-reduced-motion:reduce){#toast,.seed,#season button,#home,#skip,#order-fill{transition:none}}
 </style>
-<link rel="stylesheet" href="farm-town.css?v=ranch-1">
-<link rel="stylesheet" href="farm-ranch.css?v=ranch-1">
+<link rel="stylesheet" href="farm-town.css?v=detail-1">
+<link rel="stylesheet" href="farm-ranch.css?v=detail-1">
+<link rel="stylesheet" href="farm-font.css?v=detail-1">
+<link rel="stylesheet" href="farm-detail.css?v=detail-1">
+<link rel="preload" href="farm-ui.woff2?v=detail-1" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
 <canvas id="cv"></canvas>
@@ -71,7 +74,7 @@
 const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
 let W,H,DPR;
 function rs(){
-  DPR=Math.min(devicePixelRatio||1,2);
+  DPR=Math.min(devicePixelRatio||1,4);
   W=innerWidth;H=innerHeight;
   cv.width=W*DPR;cv.height=H*DPR;
   cv.style.width=W+'px';cv.style.height=H+'px';
@@ -80,6 +83,24 @@ function rs(){
   cam.z=Math.max(1.2,Math.min(4.5,(W-(W>900?400:24))/(COLS*CELL+116),(H-(H<700?210:240))/(ROWS*CELL+100)));
 }
 addEventListener('resize',rs);
+
+/* 地图美术与文字分层：文字按屏幕分辨率绘制，不放大低分辨率字形。 */
+function drawMapLabels(labels,map){
+  ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const l of labels){
+    const size=Math.max(11,Math.min(15,9*map.scale));
+    ctx.font='600 '+size+'px "Backyard Sans","PingFang SC","Microsoft YaHei",sans-serif';
+    const width=Math.ceil(ctx.measureText(l.text).width)+14,height=Math.ceil(size)+10;
+    const cx=Math.round((map.x+l.x*map.scale)*DPR)/DPR;
+    const cy=Math.round((map.y+(l.y-5)*map.scale)*DPR)/DPR;
+    const left=Math.round((cx-width/2)*DPR)/DPR,top=Math.round((cy-height/2)*DPR)/DPR;
+    ctx.fillStyle='#263d3b35';ctx.fillRect(left+1,top+2,width,height);
+    ctx.fillStyle=l.bg;ctx.fillRect(left,top,width,height);
+    ctx.strokeStyle='#40533f70';ctx.lineWidth=1/DPR;ctx.strokeRect(left,top,width,height);
+    ctx.fillStyle=l.ink;ctx.fillText(l.text,cx,cy);
+  }
+  ctx.restore();
+}
 
 /* ---------- 调色板 ---------- */
 const PAL={
@@ -190,7 +211,7 @@ function toGrid(mx,my){
 /* ---------- 绘制 ---------- */
 function px(x,y,w,h,c){
   if(c===undefined){c=h;h=w;}
-  ctx.fillStyle=c;ctx.fillRect(Math.round(x),Math.round(y),Math.ceil(w),Math.ceil(h));
+  ctx.fillStyle=c;ctx.fillRect(Math.round(x*DPR)/DPR,Math.round(y*DPR)/DPR,Math.ceil(w*DPR)/DPR,Math.ceil(h*DPR)/DPR);
 }
 function drawSprite(map,cx,cy,c1,c2){
   const s=cam.z;
@@ -216,6 +237,8 @@ function drawPlot(p){
   for(let row=0;row<3;row++){px(x+2*z,y+(4+row*4)*z,12*z,z,wet?'#302b25':'#493523');px(x+2*z,y+(3+row*4)*z,11*z,z,wet?'#655d43':'#8a6843')}
   if(wet){px(x+2*z,y+2*z,3*z,z,'#9a9a70');px(x+11*z,y+11*z,2*z,z,'#a5aa83')}
   if(p.fert)for(let i=0;i<4;i++)px(x+(3+i*3)*z,y+(2+(i*5)%12)*z,z,z,'#d5b47a');
+  // 更细的耕沟土粒：只增加纹理，不改变作物与格子交互。
+  for(let i=0;i<7;i++){const ox=(3+(i*5+p.x*3)%10)*z,oy=(3+(i*7+p.y*2)%10)*z;px(x+ox,y+oy,z/3,z/3,wet?'#a08b6266':'#bd955b88');}
   if(!p.s)return;
   if(p.dead){ // 枯株
     px(cx-z,cy-8*z,2*z,8*z,PAL.dead);
@@ -235,10 +258,12 @@ function drawPlot(p){
     else if(p.s==='pump'){
       px(stemX-6*z,cy-9*z,12*z,7*z,S.cd);px(stemX-5*z,cy-10*z,10*z,7*z,S.c);
       px(stemX-z,cy-12*z,2*z,3*z,PAL.leafD);
+      for(const ox of [-3,0,3])px(stemX+ox*z,cy-8*z,z/3,4*z,'#c17e43');px(stemX-3*z,cy-9*z,3*z,z/3,'#f5d275');
     }else if(p.s==='sun'){px(stemX-5*z,cy-23*z,10*z,7*z,'#e5b747');px(stemX-3*z,cy-25*z,6*z,11*z,'#f5d774');px(stemX-3*z,cy-22*z,6*z,5*z,'#745133');px(stemX-z,cy-21*z,2*z,2*z,'#ab7943')}
     else for(const [ox,oy] of fruitDots(p.s)){
       px(stemX+ox*z-1.5*z,cy+oy*z-1.5*z,3*z,p.s==='wheat'?5*z:3*z,S.cd);
       px(stemX+ox*z-z,cy+oy*z-z,2*z,p.s==='wheat'?4*z:2*z,S.c);
+      px(stemX+ox*z-z,cy+oy*z-z,z/3,z/3,'#fff4c4');if(p.s==='straw')px(stemX+ox*z+.3*z,cy+oy*z,z/3,z/3,'#f6cc83');
     }
   }
   // 渴水标记：一个闪烁的小水滴像素
@@ -497,7 +522,7 @@ rs();hud();
   requestAnimationFrame(loop);
 })(0);
 </script>
-<script src="farm-town.js?v=ranch-1"></script>
-<script src="farm-ranch.js?v=ranch-1"></script>
+<script src="farm-town.js?v=detail-1"></script>
+<script src="farm-ranch.js?v=detail-1"></script>
 </body>
 </html>
