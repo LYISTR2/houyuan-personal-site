@@ -8,7 +8,7 @@ PORT="${PORT:-8081}"
 SITE_DIR="${SITE_DIR:-/var/www/houyuan-personal-site}"
 NGINX_CONF="${NGINX_CONF:-/etc/nginx/conf.d/houyuan-personal-site.conf}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/houyuan-personal-site}"
-SITE_FILES=(index.html game.html farm.html hero-preview.webp project-preview.webp farm-preview.webp)
+SITE_FILES=(index.html game.html farm.html farm-town.js farm-town.css hero-preview.webp project-preview.webp farm-preview.webp)
 
 fail() { printf '错误：%s\n' "$*" >&2; exit 1; }
 [[ $EUID -eq 0 ]] || fail '请使用 sudo bash install.sh，或将下载的脚本通过 sudo bash 执行。'
