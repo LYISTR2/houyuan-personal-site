@@ -1,0 +1,50 @@
+/* Small wooden counters keep the activity and its place visible together. */
+#activityPanel { position:fixed; z-index:20; right:26px; top:215px; width:370px; max-height:calc(100dvh - 245px); overflow:auto; border:3px solid #805937; border-radius:5px; background:#fff0cb; box-shadow:inset 0 0 0 2px #fff7dc,0 8px 32px #29433255; padding:18px; color:#674f34; }
+#activityPanel header { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+#activityPanel header small { font-size:7px; letter-spacing:1.3px; color:#a08054; }
+#activityPanel h2 { margin:7px 0 0; font-size:21px; color:#617b48; }
+#activityClose { flex:none; width:31px; height:31px; font-size:23px; border:1px solid #a88553; border-radius:3px; background:#e9cd92; color:#735134; }
+#activityIntro { font-size:11px; line-height:1.8; color:#927752; margin:12px 0 16px; }
+#activityContent canvas { display:block; width:100%; image-rendering:pixelated; border:2px solid #a98754; border-radius:3px; }
+#activityPanel footer { display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; margin-top:16px; }
+#activityStatus { font-size:10px; color:#8c7048; line-height:1.7; }
+#activityAction,.prize-list button { background:#708b50; border:2px solid #52693c; color:#fff1cb; box-shadow:inset 0 1px #abc07a,0 2px #465e3933; padding:10px 14px; border-radius:3px; font-size:12px; min-height:42px; touch-action:none; }
+#activityAction { flex-grow:1; }
+#activityResult { margin-top:14px; padding:12px; background:#dfe5b5; border:1px solid #a4b27a; font-size:12px; line-height:1.8; color:#5c713f; }
+.activity-tip { display:block; font-size:9px; line-height:1.8; margin-top:12px; color:#a08964; }
+.ring-track,.fishing-track { position:relative; height:30px; border:2px solid #ac8957; margin-top:12px; border-radius:3px; overflow:hidden; background:#d8c291; }
+#ringGoal { position:absolute; width:26%; height:100%; background:#9bba76; box-shadow:inset 0 0 0 2px #e0e8ae; }
+#ringCursor { position:absolute; height:100%; width:4px; background:#694b31; box-shadow:1px 0 #fff3cf; transform:translateX(-50%); }
+.fishing-scene { position:relative; height:115px; border:2px solid #8da59a; overflow:hidden; background:repeating-linear-gradient(0deg,#7cabae 0 20px,#86b6b6 20px 21px,#7cabae 21px 40px); }
+.fishing-scene:before,.fishing-scene:after { content:''; position:absolute; width:42px; height:3px; background:#c1ded1; left:25px; top:34px; box-shadow:126px 32px #c1ded1,213px -14px #c1ded1; }
+.fishing-scene:after { width:19px; left:68px; top:76px; opacity:.7; }
+.fishing-bobber { position:absolute; top:45px; left:50%; width:6px; height:10px; background:#db7359; border-bottom:4px solid #fff1c7; box-shadow:0 4px 0 3px #b8d9cc66; animation:bobber-drift 1.4s ease-in-out infinite; }
+.fishing-scene b { position:absolute; bottom:12px; width:100%; text-align:center; font-size:12px; font-weight:500; color:#fff3d3; text-shadow:0 1px #4f7b7a; }
+.fishing-track { height:36px; background:#85afad; }
+#fishingZone { position:absolute; top:2px; bottom:2px; left:34%; width:32%; background:#97b77a; border:2px solid #eef0b9; opacity:.8; }
+.aligned #fishingZone { background:#bbd088; opacity:1; }
+#fishingFish { position:absolute; top:5px; left:50%; color:#fff3bc; text-shadow:0 1px #65784e; font-size:18px; font-style:normal; transform:translateX(-50%); }
+.fishing-progress { height:8px; border:1px solid #a89165; background:#dfcea2; margin-top:10px; }
+#fishingProgress { display:block; width:24%; height:100%; background:#809953; }
+.target-board { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:12px; background:#638454; border:3px solid #916b43; }
+.target-board button { position:relative; height:74px; overflow:hidden; border:0; border-bottom:7px solid #926941; border-radius:3px; background:#385a3f; }
+.target-board kbd,.memory-board kbd { position:absolute; bottom:3px; right:5px; font-size:9px; background:#e5d9a9; }
+.turnip-sprite { position:absolute; left:calc(50% - 12px); bottom:-35px; width:24px; height:27px; background:#e6d4a2; box-shadow:inset -5px -4px #c8b380; transition:bottom .13s; border-radius:2px 2px 7px 7px; }
+.turnip-sprite:before { content:''; position:absolute; width:8px; height:13px; background:#a3bd66; left:8px; top:-12px; box-shadow:-7px 5px #8fab58,7px 3px #bdd284; }
+.turnip-sprite:after { content:''; position:absolute; width:3px; height:3px; background:#795f3d; left:6px; top:11px; box-shadow:10px 0 #795f3d; }
+.up .turnip-sprite { bottom:10px; }
+.target-board button.up { background:#718d58; cursor:crosshair; }
+.memory-board { display:grid; grid-template-columns:repeat(4,1fr); gap:9px; }
+.memory-board button { position:relative; min-height:81px; border:2px solid #9f7a48; border-radius:3px; color:#eee3b8; background:#81975f; box-shadow:inset 0 0 0 3px #b8c286,0 2px #9c825444; font-size:26px; }
+.memory-board button.revealed { background:#f7e7b9; box-shadow:inset 0 0 0 3px #e6cea0; color:#7f9656; }
+.memory-board button.matched { opacity:1; border-color:#91a563; background:#e4ebbf; }
+.memory-board svg { width:37px; height:37px; fill:currentColor; image-rendering:pixelated; }
+.prize-list>div { display:flex; gap:10px; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #d8c39b; }
+.prize-list b { display:block; font-size:12px; }.prize-list small { display:block; font-size:10px; color:#a18355; margin-top:4px; }.prize-list button { padding:8px 14px; font-size:11px; }
+.forest-notes { background:#e0e6bb; border:1px solid #b7c28e; padding:16px; font-size:12px; line-height:1.85; }.forest-notes p { color:#7c7957; font-size:11px; }.forest-notes span { font-size:10px; }
+body[data-activity] #worldMini,body[data-activity] #worldZoom,body[data-activity] #worldPrompt { visibility:hidden; }
+body[data-activity] .world-menu,body[data-activity] #skip,body[data-activity] #season { pointer-events:none; opacity:.45; }
+@keyframes bobber-drift { 50% { transform:translateY(3px); } }
+@media(max-width:680px) { #activityPanel { top:auto; bottom:16px; right:14px; width:calc(100vw - 28px); max-height:calc(100dvh - 215px); padding:15px; } #activityPanel h2 { font-size:19px; } .memory-board button { min-height:70px; } #activityIntro { margin:10px 0 12px; } }
+@media(max-height:550px) { #activityPanel { right:16px; top:12px; bottom:auto; width:340px; max-height:calc(100dvh - 24px); } }
+@media(prefers-reduced-motion:reduce) { .fishing-bobber { animation:none; }.turnip-sprite { transition:none; } }

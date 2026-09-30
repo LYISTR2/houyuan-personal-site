@@ -1,6 +1,6 @@
 "use strict";
 /* 后院小镇：旧农圃是生产端，小镇是居民、交易与加工端。 */
-const GOODS={wood:{name:'木材',sell:3,buy:7},stone:{name:'石料',sell:4,buy:9},bait:{name:'鱼饵',sell:1,buy:3},fish:{name:'河鱼',sell:13},carp:{name:'金鳞鲤',sell:28},flour:{name:'麦粉',sell:24},bread:{name:'炉烤面包',sell:49},tea:{name:'薄荷茶',sell:27},jam:{name:'草莓果酱',sell:68},soup:{name:'南瓜浓汤',sell:64},eggs:{name:'鸡蛋',sell:12},milk:{name:'鲜奶',sell:20},feed:{name:'谷物饲料',sell:2,buy:5},hay:{name:'干草',sell:3,buy:5},duckegg:{name:'鸭蛋',sell:16},wool:{name:'羊毛',sell:25},cheese:{name:'奶酪',sell:58},yarn:{name:'毛线',sell:72},manure:{name:'肥料原料',sell:1},breakfast:{name:'蛋奶早餐',sell:48}};
+const GOODS={sap:{name:'树脂',sell:8},coal:{name:'煤炭',sell:7},copper:{name:'铜矿',sell:12},iron:{name:'铁矿',sell:18},gold:{name:'金矿',sell:35},crystal:{name:'晶石',sell:48},relic:{name:'遗迹碎片',sell:80},wood:{name:'木材',sell:3,buy:7},stone:{name:'石料',sell:4,buy:9},bait:{name:'鱼饵',sell:1,buy:3},fish:{name:'河鱼',sell:13},carp:{name:'金鳞鲤',sell:28},flour:{name:'麦粉',sell:24},bread:{name:'炉烤面包',sell:49},tea:{name:'薄荷茶',sell:27},jam:{name:'草莓果酱',sell:68},soup:{name:'南瓜浓汤',sell:64},eggs:{name:'鸡蛋',sell:12},milk:{name:'鲜奶',sell:20},feed:{name:'谷物饲料',sell:2,buy:5},hay:{name:'干草',sell:3,buy:5},duckegg:{name:'鸭蛋',sell:16},wool:{name:'羊毛',sell:25},cheese:{name:'奶酪',sell:58},yarn:{name:'毛线',sell:72},manure:{name:'肥料原料',sell:1},breakfast:{name:'蛋奶早餐',sell:48}};
 const PEOPLE=[
  {id:'lin',name:'阿林',role:'集市掌柜',color:'#557b86',gift:'tomato',lines:['今天的风从河面来，番茄该熟得很甜。','我把你的摊位留在了树荫下。','熟客多起来，后院也就成了小镇。']},
  {id:'mian',name:'小棉',role:'面包师',color:'#cc8d7b',gift:'wheat',lines:['麦香能把一条街的人都叫醒。','修好磨坊以后，我就不用去邻镇买面粉了。','烤炉亮着灯，回家的人就不会走错路。']},
@@ -25,7 +25,7 @@ const RECIPES=[
 ];
 const safeObject=v=>v&&typeof v==='object'&&!Array.isArray(v)?v:{};
 function normalizeTown(){
- const source=safeObject(town), clean={v:1,rep:limit(source.rep,999),stock:{},friends:{},talked:{},gifted:{},buildings:{},requests:[],completed:limit(source.completed),buys:{},seedPackets:{},jobs:[],hens:limit(source.hens,3),cows:limit(source.cows,2),lastAnimalDay:limit(source.lastAnimalDay),requestDay:limit(source.requestDay),fishingDay:limit(source.fishingDay),fishingCount:limit(source.fishingCount,7),fishSerial:limit(source.fishSerial),ranch:safeObject(source.ranch)};
+ const source=safeObject(town), clean={v:1,rep:limit(source.rep,999),stock:{},friends:{},talked:{},gifted:{},buildings:{},requests:[],completed:limit(source.completed),buys:{},seedPackets:{},jobs:[],hens:limit(source.hens,3),cows:limit(source.cows,2),lastAnimalDay:limit(source.lastAnimalDay),requestDay:limit(source.requestDay),fishingDay:limit(source.fishingDay),fishingCount:limit(source.fishingCount,7),fishSerial:limit(source.fishSerial),ranch:safeObject(source.ranch),outdoors:safeObject(source.outdoors)};
  for(const id of Object.keys(GOODS))clean.stock[id]=limit(safeObject(source.stock)[id]);
  for(const person of PEOPLE){clean.friends[person.id]=limit(safeObject(source.friends)[person.id],100);clean.talked[person.id]=limit(safeObject(source.talked)[person.id]);clean.gifted[person.id]=limit(safeObject(source.gifted)[person.id]);}
  for(const f of FACILITIES)clean.buildings[f.id]=limit(safeObject(source.buildings)[f.id],1);
@@ -113,6 +113,8 @@ function showTown(place,focus=true){
   const used=town.fishingDay===day?town.fishingCount:0,max=town.buildings.bridge?7:4;
   html+=intro('阿渔把鱼竿借给你。每次使用 1 份鱼饵、花费 2 小时；可能钓到河鱼、金鳞鲤，也可能带回漂流木。雨天和清晨更容易遇到金鳞鲤。')+'<div class="town-grid"><article class="town-card"><h3>在河边待一会儿</h3><p>今日抛竿 '+used+'/'+max+' · 鱼饵 '+amount('bait')+'</p><p>河鱼 '+amount('fish')+' · 金鳞鲤 '+amount('carp')+'</p>'+btn('抛竿 · 2 小时','fish','',!amount('bait')||used>=max)+'</article><article class="town-card"><h3>阿渔的鱼饵方子</h3><p>麦子 ×1 → 鱼饵 ×2，或者去集市买。</p>'+btn('拌两份鱼饵','bait','',!amount('wheat'),true)+'<p>'+ (town.buildings.bridge?'石溪桥已修好，可以走到另一岸。':'修复小桥后，每日钓鱼次数增加到 7 次。')+'</p></article></div><p class="town-note">钓鱼是单机随机收获，不消耗真实货币。关闭窗口后可继续照料田地。</p>';
  }else if(place==='board'){
+  const crop=SEEDS.find(s=>s.id===order.id),need=Math.max(0,order.goal-order.done);
+  html+='<section class="town-card valley-order"><h3>农庄的第 '+order.number+' 篮</h3><p>'+crop.nm+' · 仓库 '+totalStock(crop.id)+' / '+need+' 份 · 奖金 '+order.goal*6+'◈ · 堆肥 ×2</p><button class="town-action" data-farm-deliver '+(totalStock(crop.id)<need?'disabled':'')+'>交付农庄收成</button></section>';
   html+=intro('三位居民每天留下新的委托：交付库存，获得货款、声望、好感。每天 00:00 更新，不自动扣走你的物品。原来的邻里订单仍在农圃里。')+'<div class="town-grid">';
   town.requests.forEach((q,i)=>{const p=personBy(q.person);html+='<article class="town-card"><h3>'+p.name+'的委托'+(q.done?' · 已完成':'')+'</h3><p>需要 '+itemName(q.item)+' ×'+q.n+'</p><small>库存 '+amount(q.item)+' · 报酬 '+q.reward+'◈<br>声望 +3 · 好感 +4</small><div class="town-buttons">'+btn(q.done?'今天谢谢你':'交付物品','request',String(i),q.done||amount(q.item)<q.n)+'</div></article>';});
   html+='</div><p class="town-note">累计完成 '+town.completed+' 件小镇委托。随着设施开放，加工品、鸡蛋和鲜奶也会出现在需求里。</p>';
@@ -166,6 +168,7 @@ document.getElementById('townShade').addEventListener('pointerdown',e=>{if(e.tar
 document.getElementById('townContent').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(b&&!b.disabled)townAction(b.dataset.action,b.dataset.id);});
 addEventListener('keydown',e=>{
  if(townDialogOpen){e.stopImmediatePropagation();if(e.key==='Escape'){e.preventDefault();closeTown();return;}if(e.key==='Tab'){const controls=[...document.querySelectorAll('#townDialog button:not(:disabled), #townDialog input')],first=controls[0],last=controls.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}return;}
+ if(window.BackyardWorld)return;
  if(e.repeat)return;if(e.key.toLowerCase()==='m'){e.preventDefault();e.stopImmediatePropagation();setTownView(['farm','ranch','town'][(['farm','ranch','town'].indexOf(townView)+1)%3]);}
  if(townView==='town'&&e.key.toLowerCase()==='b'){e.preventDefault();e.stopImmediatePropagation();showTown('bag');}
 },true);
@@ -189,10 +192,10 @@ function house(b){const built=!b.facility||town.buildings[b.facility],x=b.x,y=b.
  if(b.id==='mill'){rect(x+w/2-1,y-9,2,30,'#725d48');rect(x+w/2-15,y+5,31,2,'#e4d5ad');for(let i=0;i<4;i++){rect(x+w/2-13+i*3,y+2,2,8,'#ad966d');rect(x+w/2+3+i*3,y+2,2,8,'#ad966d');}rect(x+w/2-4,y-8,8,9,'#d4c59a');rect(x+w/2-4,y+13,8,9,'#d4c59a');rect(x+w/2-2,y+4,4,4,'#7c6950');}
  if(b.id==='kitchen'&&built){rect(x+w-13,y-11,6,15,'#8b7864');rect(x+w-14,y-12,8,3,'#bba787');if(!reducedMotion){const sy=(sceneTime*.007)%9;rect(x+w-12,y-18-sy,5,3,'#f1e7d277');rect(x+w-11,y-23-sy,7,3,'#f1e7d244');}}
 }
-function drawTown(){
+function renderTownMap(){
  townLabels=[];
  tg.imageSmoothingEnabled=false;const winter=season==='winter',autumn=season==='autumn';
- rect(0,0,MAP_W,MAP_H,winter?'#c6d9cc':autumn?'#a5ac76':'#8eaf78');
+ rect(0,0,MAP_W,MAP_H,window.BackyardArt?BackyardArt.palettes[season].grass:winter?'#c6d9cc':autumn?'#a5ac76':'#8eaf78');
  for(let i=0;i<600;i++){const x=(i*97)%MAP_W,y=(i*71)%MAP_H;rect(x,y,i%4?1:2,1,winter?'#e1e9d7':i%3?'#789a65':'#b7c48a');}
  // 道路有石缝与踏实的边缘，从后院一直连到码头。
  rect(28,146,333,26,'#9c9673');rect(26,148,337,21,'#d3c89e');rect(196,48,23,231,'#a5a07a');rect(198,47,19,233,'#dbcfaa');rect(63,215,272,16,'#c5bf96');
@@ -219,15 +222,19 @@ function drawTown(){
  for(const p of personPositions())citizen(p);
  label('后院小镇',MAP_W/2,27,'#345873','#f5e7bb');
  for(const b of LANDMARKS){const text=b.id==='river'?'石溪河岸':b.name+(b.facility&&!town.buildings[b.facility]?' · 待修复':'');label(text,b.x+b.w/2,b.id==='river'?b.y+12:b.y-10,townHover===b.id?'#f9ecc2':'#e4d7b1');}
- const night=Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));if(night){rect(0,0,MAP_W,MAP_H,'rgba(24,43,72,'+night*.5+')');for(const [x,y]of [[87,147],[313,148],[187,221],[132,115],[289,112]]){const g=tg.createRadialGradient(x,y,1,x,y,22);g.addColorStop(0,'rgba(255,223,145,'+night*.56+')');g.addColorStop(1,'rgba(255,223,145,0)');tg.fillStyle=g;tg.fillRect(x-22,y-22,44,44);}}
+ const night=window.BackyardWorld?0:Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));if(night){rect(0,0,MAP_W,MAP_H,'rgba(24,43,72,'+night*.5+')');for(const [x,y]of [[87,147],[313,148],[187,221],[132,115],[289,112]]){const g=tg.createRadialGradient(x,y,1,x,y,22);g.addColorStop(0,'rgba(255,223,145,'+night*.56+')');g.addColorStop(1,'rgba(255,223,145,0)');tg.fillStyle=g;tg.fillRect(x-22,y-22,44,44);}}
  if(day%5===0&&!reducedMotion){for(let i=0;i<45;i++)rect((i*73+sceneTime*.008)%420,(i*37+sceneTime*.019)%300,1,4,'#eff3d988');}
+}
+function drawTown(){
+ renderTownMap();
+ const night=hour<6||hour>=19;
  ctx.fillStyle=night>.3?'#253e50':'#cbd5b1';ctx.fillRect(0,0,W,H);
  const top=H<560?78:W<680?182:W<1100?173:111,bottom=H<560?110:W<680?150:105,scale=Math.max(.4,Math.min((W-20)/MAP_W,(H-top-bottom)/MAP_H,2.7)),mw=MAP_W*scale,mh=MAP_H*scale,x=(W-mw)/2,y=top+Math.max(0,(H-top-bottom-mh)/2);
  mapRect={x:Math.round(x*DPR)/DPR,y:Math.round(y*DPR)/DPR,scale};ctx.imageSmoothingEnabled=false;ctx.drawImage(townCanvas,mapRect.x,mapRect.y,mw,mh);
  ctx.strokeStyle='#3e5d49';ctx.lineWidth=2;ctx.strokeRect(mapRect.x-2,mapRect.y-2,mw+4,mh+4);drawMapLabels(townLabels,mapRect);
 }
 function townHit(mx,my){if(!mapRect)return null;const x=(mx-mapRect.x)/mapRect.scale,y=(my-mapRect.y)/mapRect.scale;for(const p of personPositions())if(Math.abs(x-p.x)<11&&Math.abs(y-p.y+8)<15)return {id:p.id,place:'people'};for(const b of LANDMARKS)if(x>b.x-6&&x<b.x+b.w+6&&y>b.y-18&&y<b.y+b.h+13)return {id:b.id,place:b.facility&&!town.buildings[b.facility]?'build':b.place||b.id};return null;}
-for(const event of ['pointerdown','pointermove','pointerup','wheel'])cv.addEventListener(event,e=>{if(townDialogOpen){e.stopImmediatePropagation();return;}if(townView!=='town')return;e.stopImmediatePropagation();if(event==='wheel'){e.preventDefault();return;}const hit=townHit(e.clientX,e.clientY);townHover=hit?.id||'';cv.style.cursor=hit?'pointer':'default';if(event==='pointerup'&&hit)showTown(hit.place);},{capture:true,passive:false});
+for(const event of ['pointerdown','pointermove','pointerup','wheel'])cv.addEventListener(event,e=>{if(window.BackyardWorld)return;if(townDialogOpen){e.stopImmediatePropagation();return;}if(townView!=='town')return;e.stopImmediatePropagation();if(event==='wheel'){e.preventDefault();return;}const hit=townHit(e.clientX,e.clientY);townHover=hit?.id||'';cv.style.cursor=hit?'pointer':'default';if(event==='pointerup'&&hit)showTown(hit.place);},{capture:true,passive:false});
 // 让作物选择用原创像素小图，而不是各平台外观不同的 emoji。
 function seedIcon(s){const c=document.createElement('canvas');c.width=20;c.height=22;const g=c.getContext('2d');g.fillStyle='#577b49';g.fillRect(9,8,2,12);g.fillRect(4,12,6,3);g.fillRect(11,9,5,3);g.fillStyle=s.cd;g.fillRect(5,2,10,8);g.fillStyle=s.c;g.fillRect(6,1,8,8);g.fillStyle='#f3e4b7';g.fillRect(7,2,2,2);return c.toDataURL();}
 for(let i=0;i<bar.children.length;i++){const s=SEEDS[i],ic=bar.children[i].querySelector('.ic');ic.innerHTML='<img alt="" src="'+seedIcon(s)+'" width="20" height="22" style="image-rendering:pixelated;display:block;margin:auto">';}
@@ -236,3 +243,5 @@ const drawOriginalSky=drawSky,drawOriginalYard=drawYard;
 drawSky=function(){drawOriginalSky();const z=Math.max(1,cam.z*.65);for(let i=0;i<7;i++){const x=25+i*(W/7),y=H*.46+Math.sin(i*1.7)*11;px(x,y,29*z,17*z,'#86927b');px(x-2*z,y-5*z,33*z,7*z,i%2?'#798e8b':'#9b927b');px(x+11*z,y+7*z,6*z,10*z,'#707f72');px(x+3*z,y+4*z,4*z,4*z,'#d6c99a');}};
 drawYard=function(){drawOriginalYard();const z=cam.z,[x,y]=toScreen(-.5,-.5),r=(a,b,w,h,c)=>px(x+a*z,y+b*z,w*z,h*z,c);for(let i=0;i<8;i++){r(-10+i*17,-15,9,3,'#c6b590');r(-9+i*17,-12,7,1,'#968d6a');}for(let i=0;i<5;i++){r(-49+i*5,84+(i%2)*3,3,2,'#a8c58e');r(-48+i*5,82+(i%2)*3,2,2,i%2?'#e4b7aa':'#efe0a2');}r(126,99,13,8,'#ac8961');r(127,98,11,2,'#d1ad7a');r(129,95,3,4,'#d8a15b');r(134,94,3,5,'#85a364');};
 setTownView('farm');townHud();save();
+
+document.getElementById('townContent').addEventListener('click',e=>{if(e.target.closest('[data-farm-deliver]')){deliver();showTown('board',false);}});

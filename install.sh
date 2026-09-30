@@ -8,7 +8,8 @@ PORT="${PORT:-8081}"
 SITE_DIR="${SITE_DIR:-/var/www/houyuan-personal-site}"
 NGINX_CONF="${NGINX_CONF:-/etc/nginx/conf.d/houyuan-personal-site.conf}"
 BACKUP_DIR="${BACKUP_DIR:-/var/backups/houyuan-personal-site}"
-SITE_FILES=(index.html game.html farm.html farm-town.js farm-town.css farm-ranch.js farm-ranch.css farm-detail.css farm-font.css farm-ui.woff2 farm-ui-1.woff2 farm-ui-2.woff2 farm-ui-3.woff2 farm-ui-4.woff2 farm-ui-5.woff2 farm-ui-6.woff2 farm-ui-7.woff2 farm-ui-8.woff2 farm-font-license.txt hero-preview.webp project-preview.webp farm-preview.webp)
+SITE_FILES=(index.html world.html game.html farm.html farm-font.css farm-ui.woff2 farm-ui-1.woff2 farm-ui-2.woff2 farm-ui-3.woff2 farm-ui-4.woff2 farm-ui-5.woff2 farm-ui-6.woff2 farm-ui-7.woff2 farm-ui-8.woff2 farm-font-license.txt hero-preview.webp project-preview.webp farm-preview.webp)
+SITE_DIRS=(assets)
 
 fail() { printf '错误：%s\n' "$*" >&2; exit 1; }
 [[ $EUID -eq 0 ]] || fail '请使用 sudo bash install.sh，或将下载的脚本通过 sudo bash 执行。'
@@ -65,9 +66,14 @@ trap 'exit 130' INT TERM
 printf '下载 %s (%s)…\n' "$REPO_URL" "$BRANCH"
 git clone --quiet --depth 1 --branch "$BRANCH" -- "$REPO_URL" "$work/repo"
 for file in "${SITE_FILES[@]}"; do [[ -f $work/repo/$file ]] || fail "仓库缺少 $file"; done
+for directory in "${SITE_DIRS[@]}"; do [[ -d $work/repo/$directory && ! -L $work/repo/$directory ]] || fail "仓库缺少资源目录 $directory"; done
 mkdir -p -- "$(dirname "$SITE_DIR")" "$(dirname "$NGINX_CONF")" "$BACKUP_DIR"
 stage=$(mktemp -d "${SITE_DIR}.stage.XXXXXX")
 for file in "${SITE_FILES[@]}"; do install -m 0644 "$work/repo/$file" "$stage/$file"; done
+for directory in "${SITE_DIRS[@]}"; do
+  cp -R -- "$work/repo/$directory" "$stage/$directory"
+  chmod -R a+rX -- "$stage/$directory"
+done
 printf '%s\n' 'houyuan-personal-site' > "$stage/.houyuan-installer"
 chmod 0644 "$stage/.houyuan-installer"
 chmod 0755 "$stage"

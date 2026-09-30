@@ -1,0 +1,21 @@
+body { font-family:"Backyard Sans","PingFang SC",sans-serif; }
+.p { border:2px solid #9d794c; border-radius:4px; background:#314b46eE; box-shadow:inset 0 0 0 1px #dfcb9155,0 3px #172b2855; color:#fff0cd; }
+#hp { background:#f6e6bf; border-color:#85613d; }
+#tm { color:#705331; background:#f5e5bd; font-family:inherit; }
+#journalBtn,#brand { color:#f9e6b6; font-family:inherit; font-size:12px; }
+#journal { background:#f9ebc9; color:#745b3c; border:4px solid #85603b; padding:20px; }
+#journal h2,#journal .entry b { color:#657a4a; font-family:inherit; }
+#journal .entry small,#journalStats { color:#927b57; }
+#journal .entry { border-bottom-color:#bda47755; }
+#journal button { background:#759057; border:2px solid #526c3d; color:#fff0cb; border-radius:3px; }
+#bar { background:#b69764; border:3px solid #74522e; }
+.sl { background:#eddbaf; border-color:#9d7c4e; color:#604a2f; border-radius:2px; }
+.sl.on { border:2px solid #fff1b7; background:#b2c386; box-shadow:inset 0 0 0 1px #71894e; }
+#ts { background:#f8e9c3; color:#705638; border:2px solid #967043; border-radius:4px; }
+#cr { background:#f6e6c1; color:#725838; border:3px solid #8b633e; }
+.r { border-bottom-color:#b5976555; }.r small { color:#89744f; }
+.touch-key { background:#f4e3b9eE; color:#6c4e30; border:2px solid #946a42; border-radius:4px; }
+.integrated-adventure #brand,.integrated-adventure #reset { display:none; }
+.integrated-adventure #journalBtn { top:59px; }
+.integrated-adventure #help { max-width:240px; font-family:inherit; font-size:10px; }
+@media(max-width:680px) { .integrated-adventure #journalBtn { top:60px; left:8px; font-size:10px; } .integrated-adventure #quest { top:59px; max-width:160px; } }

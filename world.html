@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>后院物语 · 河谷里的每一天</title>
+<link rel="stylesheet" href="assets/css/farm.css">
+<link rel="stylesheet" href="assets/css/town.css">
+<link rel="stylesheet" href="assets/css/ranch.css">
+<link rel="stylesheet" href="farm-font.css?v=detail-1">
+<link rel="stylesheet" href="assets/css/typography.css">
+<link rel="preload" href="farm-ui.woff2?v=detail-1" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/world.css">
+<link rel="stylesheet" href="assets/css/activities.css">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#765033">
+<meta name="description" content="种植、养殖、邻里与矿洞探索，生活在同一片像素河谷。">
+</head>
+<body class="world" data-region="farm">
+<canvas id="cv" aria-label="后院河谷大世界：用方向键或 WASD 行走，E 互动，M 地图"></canvas>
+<div class="panel" id="ttl">像素农圃<small>播种 · 浇水 · 等一场收获</small></div>
+<a class="panel" id="home" href="index.html">← 回到后院</a>
+<div class="panel" id="hud"><span>DAY <b id="d">1</b></span><span>◈ <b id="c">20</b></span><span>✦ <b id="h">0</b></span></div>
+<div class="panel" id="season" role="group" aria-label="画面季节（仅改变外观）"><span class="label">季节 / SEASON</span><button type="button" data-season="spring" aria-pressed="true">春</button><button type="button" data-season="summer" aria-pressed="false">夏</button><button type="button" data-season="autumn" aria-pressed="false">秋</button><button type="button" data-season="winter" aria-pressed="false">冬</button></div>
+<div class="panel" id="order" aria-live="polite"><strong id="order-name"></strong><span id="order-text"></span><div id="order-progress"><div id="order-fill"></div></div><small id="order-reward"></small><br><button class="farm-btn" id="deliver" type="button">交付这一篮</button></div>
+<div class="panel" id="bar"></div>
+<button class="panel" id="workshop" type="button">仓库与工坊 · B</button><div class="panel" id="tools" role="group" aria-label="田间工具"><button type="button" data-tool="care" aria-pressed="true">种 / 浇 / 收</button><button type="button" data-tool="fertilize" aria-pressed="false">施肥</button><button type="button" data-tool="clear" aria-pressed="false">铲除</button></div><div class="panel" id="fieldInfo">点田地照料 · 收获进仓库</div><section class="panel" id="ledger" aria-label="仓库与工坊"></section>
+<div id="toast"></div>
+<div class="panel" id="day"></div>
+<button class="panel" id="skip" type="button">⏩ 快进 8 小时</button>
+<div class="panel" id="hint">1–7 选种 · B 仓库与工坊<br>点空地播种 · 点幼苗浇水 · 点成熟作物收获<br>SPACE 快进 8 小时 · 拖动平移 · 滚轮缩放</div>
+<script src="assets/js/storage.js"></script>
+<script src="assets/js/farm.js"></script>
+<script src="assets/js/town.js"></script>
+<script src="assets/js/ranch.js"></script>
+<script src="assets/js/world-data.js"></script>
+<script src="assets/js/activity-rules.js"></script>
+<script src="assets/js/activities.js"></script>
+<script src="assets/js/world-art.js"></script>
+<script src="assets/js/world.js"></script>
+</body>
+</html>

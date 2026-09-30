@@ -202,10 +202,10 @@ function ranchSprite(a,p,i){
  if(night)ranchLabel('z',x+17,y-20,'#dbe5d2');
  const effect=ranchEffects.find(e=>e.id===a.id);if(effect){ranchLabel(effect.text,x,y-36,'#fff1c8');if(effect.text!=='♥'){if(a.type==='cow'){rr(x+20,y-5,8,10,'#889b98');rr(x+21,y-7,6,2,'#eee6c6');rr(x+21,y-3,6,3,'#fff0d5');}else if(a.type==='sheep'){rr(x+18,y-6,9,2,'#d4d9ca');rr(x+22,y-10,2,10,'#d4d9ca');rr(x+18,y-9,3,3,'#b47457');rr(x+18,y-2,3,3,'#b47457');}else{rr(x+16,y-2,13,7,'#b79559');rr(x+18,y-5,3,4,'#f8e5b6');rr(x+23,y-5,3,4,'#f8e5b6');}}}
 }
-function drawRanch(){
+function renderRanchMap(){
  ranchLabels=[];
  const r=town.ranch,w=400,h=320,night=hour<6||hour>=19,rain=day%5===0;
- const grass=['#91af6b','#7d9d60','#afa16b','#c4d5ce'][SEASONS.indexOf(season)];rr(0,0,w,h,grass);
+ const grass=window.BackyardArt?BackyardArt.palettes[season].grass:['#91af6b','#7d9d60','#afa16b','#c4d5ce'][SEASONS.indexOf(season)];rr(0,0,w,h,grass);
  for(let i=0;i<180;i++){const x=(i*71)%400,y=(i*43)%320;rr(x,y,2,i%3?1:2,season==='winter'?'#e8eee0':i%4?'#9ab776':'#d8cf88');}
  for(let i=0;i<330;i++){const x=(i*67)%400,y=(i*41)%285;if(x>183&&x<214||y>195&&y<228)continue;rr(x,y,.66,2,'#5f834b');rr(x+1,y+1,.66,1,'#c6d496');if(i%19===0){rr(x,y-1,1.33,1.33,'#e5d6ab');rr(x+.66,y-1,.66,.66,'#c99769');}}
  rr(0,197,400,28,'#8d9a66');rr(0,199,400,23,'#d4bf90');rr(186,0,26,320,'#a29970');rr(188,0,22,285,'#d4bf90');
@@ -233,15 +233,19 @@ function drawRanch(){
  for(const {a,p,i}of animals){ranchSprite(a,p,i);ranchHits.push({x:p.x-15,y:p.y-26,w:36,h:33,place:'ranch-animal-'+a.id,id:a.id});}
  if(!r.animals.length)ranchLabel('空院子等一位小伙伴',99,129);
  if(rain&&!reducedMotion)for(let i=0;i<45;i++){const x=(i*47-sceneTime*.02+4000)%400,y=(i*37+sceneTime*.06)%320;rr(x,y,1,5,'#d2e3d366');}
- if(night){rr(0,0,400,320,'#24354c66');ranchLabel('晚安 · 明晨再见',200,307,'#d3dbcd');}else ranchLabel('RIVERBEND / 河湾牧场',202,309,'#e9dfb7');
+ if(night&&!window.BackyardWorld){rr(0,0,400,320,'#24354c66');ranchLabel('晚安 · 明晨再见',200,307,'#d3dbcd');}else ranchLabel('RIVERBEND / 河湾牧场',202,309,'#e9dfb7');
+}
+function drawRanch(){
+ renderRanchMap();
+ const night=hour<6||hour>=19;
  ctx.fillStyle=night?'#273e4c':'#dce7c9';ctx.fillRect(0,0,W,H);
  const mobile=W<=680,short=H<=560,top=short?78:mobile?176:W<=1100?167:105,bottom=short?110:mobile?188:135;
  const scale=Math.max(.2,Math.min((W-24)/400,(H-top-bottom)/320,2.3)),x=(W-400*scale)/2,y=top+Math.max(0,(H-top-bottom-320*scale)/2);
  ranchMapRect={x:Math.round(x*DPR)/DPR,y:Math.round(y*DPR)/DPR,scale};ctx.imageSmoothingEnabled=false;ctx.fillStyle='#294838';ctx.fillRect(ranchMapRect.x-4,ranchMapRect.y-4,400*scale+8,320*scale+8);ctx.drawImage(ranchCanvas,ranchMapRect.x,ranchMapRect.y,400*scale,320*scale);drawMapLabels(ranchLabels,ranchMapRect);
 }
 function ranchHit(mx,my){if(!ranchMapRect)return null;const x=(mx-ranchMapRect.x)/ranchMapRect.scale,y=(my-ranchMapRect.y)/ranchMapRect.scale;return [...ranchHits].reverse().find(p=>x>=p.x&&x<=p.x+p.w&&y>=p.y&&y<=p.y+p.h);}
-cv.addEventListener('pointerdown',e=>{if(townView!=='ranch')return;e.stopImmediatePropagation();drag=null;if(townDialogOpen)return;const hit=ranchHit(e.clientX,e.clientY);if(hit)showTown(hit.place);},true);
-cv.addEventListener('pointermove',e=>{if(townView!=='ranch')return;e.stopImmediatePropagation();ranchHover=ranchHit(e.clientX,e.clientY)?.id||'';cv.style.cursor=ranchHit(e.clientX,e.clientY)?'pointer':'default';},true);
-cv.addEventListener('pointerup',e=>{if(townView==='ranch')e.stopImmediatePropagation();},true);
-cv.addEventListener('wheel',e=>{if(townView==='ranch'){e.preventDefault();e.stopImmediatePropagation();}},{capture:true,passive:false});
-addEventListener('keydown',e=>{if(townView!=='ranch'||townDialogOpen)return;if(e.key.toLowerCase()==='b'){e.preventDefault();e.stopImmediatePropagation();showTown('ranch-stock');}},true);
+cv.addEventListener('pointerdown',e=>{if(window.BackyardWorld)return;if(townView!=='ranch')return;e.stopImmediatePropagation();drag=null;if(townDialogOpen)return;const hit=ranchHit(e.clientX,e.clientY);if(hit)showTown(hit.place);},true);
+cv.addEventListener('pointermove',e=>{if(window.BackyardWorld)return;if(townView!=='ranch')return;e.stopImmediatePropagation();ranchHover=ranchHit(e.clientX,e.clientY)?.id||'';cv.style.cursor=ranchHit(e.clientX,e.clientY)?'pointer':'default';},true);
+cv.addEventListener('pointerup',e=>{if(window.BackyardWorld)return;if(townView==='ranch')e.stopImmediatePropagation();},true);
+cv.addEventListener('wheel',e=>{if(window.BackyardWorld)return;if(townView==='ranch'){e.preventDefault();e.stopImmediatePropagation();}},{capture:true,passive:false});
+addEventListener('keydown',e=>{if(window.BackyardWorld||e.target.matches('input,textarea,select'))return;if(townView!=='ranch'||townDialogOpen)return;if(e.key.toLowerCase()==='b'){e.preventDefault();e.stopImmediatePropagation();showTown('ranch-stock');}},true);
