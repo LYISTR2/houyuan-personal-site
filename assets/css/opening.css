@@ -1,0 +1,66 @@
+/* Night garden: lichen, amber light, serif type and a slow walk through plants. */
+html.opening-lock { overflow:hidden; }
+.opening { --halo:#ffc46b; --lichen:#d5e6c8; --night:#0a1613; position:fixed; inset:0; z-index:80; visibility:hidden; pointer-events:none; color:var(--lichen); isolation:isolate; font-family:"Backyard Sans","PingFang SC",sans-serif; }
+.opening:not(.is-active) { display:none; }
+.opening.is-active { visibility:visible; pointer-events:auto; }
+.opening-screen { position:absolute; inset:0; overflow:hidden; background:var(--night); }
+#openingGarden { position:absolute; inset:0; display:block; width:100%; height:100%; opacity:0; transition:opacity .8s; }
+.opening.has-garden #openingGarden { opacity:1; }
+.opening-fallback { position:absolute; inset:0; background:radial-gradient(ellipse at 62% 40%,#244736,#0a1613 65%); transition:opacity .8s; }
+.has-garden .opening-fallback { opacity:0; }
+.garden-path { position:absolute; width:32%; height:62%; left:36%; bottom:-5%; background:linear-gradient(#84948211,#82938344); clip-path:polygon(46% 0,54% 0,100% 100%,0 100%); }
+.garden-ring { position:absolute; left:60%; top:39%; width:clamp(170px,26vw,380px); aspect-ratio:1; transform:translate(-50%,-50%); border:1px solid #ffcc8477; border-radius:50%; box-shadow:0 0 45px #ffc46b33,inset 0 0 40px #ffc46b22; background:radial-gradient(circle,#ffe1a918,transparent 65%); }
+.garden-fern { position:absolute; bottom:-8%; width:45%; height:76%; background:repeating-conic-gradient(from -5deg at 55% 95%,transparent 0deg 8deg,#3d72514d 9deg 14deg,transparent 15deg 23deg); clip-path:polygon(46% 0,90% 30%,75% 50%,100% 70%,65% 82%,60% 100%,35% 100%,10% 75%,30% 48%,7% 30%); }
+.garden-fern--left { left:-5%; transform:rotate(-18deg); }.garden-fern--right { right:-2%; transform:rotate(25deg); opacity:.7; }
+.opening-fallback i { position:absolute; width:3px; height:3px; background:#ffc46b; border-radius:50%; box-shadow:0 0 12px 4px #ffc46b66; left:32%; top:29%; animation:garden-firefly 3.6s ease-in-out infinite alternate; }
+.opening-fallback i:nth-of-type(2) { left:72%; top:64%; animation-delay:-1s; }.opening-fallback i:nth-of-type(3) { left:20%; top:76%; animation-delay:-2s; }.opening-fallback i:nth-of-type(4) { left:85%; top:33%; animation-delay:-.6s; }
+.opening-vignette,.opening-grain { position:absolute; inset:0; pointer-events:none; }
+.opening-vignette { background:radial-gradient(ellipse at 55% 43%,transparent 28%,#03090796 100%),linear-gradient(90deg,#030c0b66,transparent 60%); }
+.opening-grain { opacity:.07; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.opening-brand { position:absolute; top:calc(27px + env(safe-area-inset-top,0px)); left:clamp(24px,7vw,110px); text-decoration:none; color:var(--lichen); font:600 17px "Songti SC","STSong",serif; letter-spacing:.15em; z-index:3; }
+.opening-brand span { margin-left:18px; font:8px ui-monospace,monospace; opacity:.6; letter-spacing:.15em; }
+.opening-chapter { position:absolute; inset:0; z-index:2; display:flex; align-items:center; padding:clamp(24px,7vw,110px); opacity:0; visibility:hidden; transform:translateY(22px); filter:blur(6px); transition:opacity .85s,filter 1.1s,transform 1.2s,visibility 1.1s; pointer-events:none; }
+.opening-chapter.is-visible { visibility:visible; opacity:1; transform:none; filter:none; }
+.opening-chapter--start,.opening-chapter--end { align-items:flex-end; padding-bottom:clamp(105px,17vh,170px); }
+.opening-chapter--right { background:linear-gradient(270deg,#030b0977,transparent 72%); justify-content:flex-end; padding-right:clamp(75px,13vw,185px); }
+.opening-text { max-width:570px; text-shadow:0 2px 26px #040a08d9; }
+.opening-kicker { display:block; margin:0 0 20px; color:var(--halo); font:italic 400 clamp(16px,1.8vw,22px)/1.4 Georgia,"Iowan Old Style",serif; letter-spacing:.025em; }
+.opening-title { margin:0; color:var(--lichen); font:700 clamp(44px,6vw,82px)/1.2 "Songti SC","Noto Serif SC","STSong",serif; letter-spacing:.02em; }
+.opening-chapter--start .opening-title { font-size:clamp(66px,10.5vw,144px); line-height:1.07; letter-spacing:-.02em; }
+.opening-line { display:block; }
+.opening-mask { display:inline-block; overflow:hidden; vertical-align:bottom; padding-bottom:.08em; }
+.opening-char { display:inline-block; transform:translateY(115%); transition:transform 1.2s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--char) * 95ms); }
+.opening.is-arrived .opening-char { transform:translateY(0); }
+.opening-detail { margin:23px 0 0; color:#d5e6c8d9; font-size:clamp(13px,1.2vw,17px); line-height:1.95; letter-spacing:.035em; }
+.opening-spec { display:grid; grid-template-columns:auto 1fr; gap:8px 24px; border-left:1px solid var(--halo); padding-left:17px; margin:27px 0 0; font-size:12px; line-height:1.7; }
+.opening-spec dt { color:#d5e6c880; }.opening-spec dd { margin:0; color:#d5e6c8d4; }
+.opening-chapter--start .opening-detail { opacity:0; transform:translateY(8px); transition:opacity 1s .65s,transform 1s .65s; }
+.opening.is-arrived .opening-chapter--start .opening-detail { opacity:1; transform:none; }
+.opening-enter { pointer-events:auto; background:transparent; border:0; border-bottom:1px solid #ffc46b88; color:var(--halo); padding:0 0 9px; margin-top:26px; font:13px "Backyard Sans",sans-serif; cursor:pointer; }
+.opening-enter span { margin-left:20px; }
+.opening-walk { position:absolute; right:clamp(26px,7vw,110px); bottom:20%; display:flex; flex-direction:column; align-items:center; gap:15px; writing-mode:vertical-rl; color:#d5e6c899; font-size:10px; letter-spacing:.2em; transition:opacity .6s; }
+.opening-walk i { display:block; width:1px; height:60px; background:linear-gradient(var(--halo),transparent); transform-origin:top; animation:garden-walk 2.8s ease-in-out infinite; }
+.opening.is-journey .opening-walk { opacity:0; }
+.opening-veil { position:absolute; inset:0; z-index:5; pointer-events:none; --iris:0%; background:radial-gradient(circle at 55% 45%,transparent calc(var(--iris) - 12vmax),var(--night) var(--iris)); }
+.opening-index { position:absolute; z-index:6; right:clamp(20px,2.5vw,36px); top:50%; transform:translateY(-50%); display:grid; gap:23px; }
+.opening-index button { border:0; padding:5px 0 5px 10px; background:transparent; display:flex; justify-content:flex-end; align-items:center; gap:13px; color:#d5e6c899; font:11px "Backyard Sans",sans-serif; cursor:pointer; }
+.opening-index span { opacity:0; transform:translateX(5px); transition:opacity .4s,transform .4s; }
+.opening-index i { width:8px; height:8px; border:1px solid currentColor; border-radius:50%; }
+.opening-index button:hover span,.opening-index button:focus-visible span,.opening-index button[aria-current] span { opacity:1; transform:none; }
+.opening-index button[aria-current] { color:var(--halo); }.opening-index button[aria-current] i { background:var(--halo); border-color:var(--halo); box-shadow:0 0 14px var(--halo); }
+.opening-progress { position:absolute; z-index:6; left:clamp(24px,7vw,110px); right:clamp(24px,7vw,110px); bottom:calc(28px + env(safe-area-inset-bottom,0px)); height:1px; background:#d5e6c82b; }
+.opening-progress:before { content:''; display:block; width:var(--walk,0%); height:100%; background:var(--halo); box-shadow:0 0 9px #ffc46b55; }
+.opening-skip { position:absolute; z-index:7; bottom:calc(45px + env(safe-area-inset-bottom,0px)); right:clamp(24px,7vw,110px); color:#d5e6c8c9; font:11px "Backyard Sans",sans-serif; letter-spacing:.06em; min-height:44px; border:1px solid #d5e6c83d; padding:8px 15px; border-radius:2px; background:#0a161380; cursor:pointer; }
+.opening button:focus-visible { outline:2px solid var(--halo); outline-offset:6px; }.opening-skip:hover { border-color:var(--halo); color:var(--halo); }
+.opening.is-revealing .opening-screen { opacity:0; transform:scale(1.035); transition:opacity 1s,transform 1.5s; }
+.opening.is-revealing .opening-veil,.opening.is-revealing .opening-index,.opening.is-revealing .opening-progress { opacity:0; transition:opacity .5s; }
+.replay-opening { background:var(--sheet); color:var(--accent); }
+@keyframes garden-firefly { to { transform:translate(12px,-17px); opacity:.5; } }
+@keyframes garden-walk { 0% { transform:scaleY(0); } 55% { transform:scaleY(1); } 100% { transform:scaleY(1); opacity:0; } }
+@media(min-width:681px) { .top { gap:clamp(8px,1.3vw,18px); }.nav { gap:clamp(8px,1.5vw,20px); }.replay-opening { font-size:11px; } }
+@media(max-width:680px) { .top { display:grid; grid-template-columns:1fr auto auto; gap:3px 6px; padding:10px 0 4px; }.mark { grid-column:1; grid-row:1; }.mode { grid-column:2; grid-row:1; min-height:38px; }.replay-opening { grid-column:3; grid-row:1; }.nav { grid-column:1/-1; grid-row:2; }
+  .opening-chapter,.opening-chapter--right { align-items:flex-end; justify-content:flex-start; padding:26px 24px calc(115px + env(safe-area-inset-bottom,0px)); background:linear-gradient(0deg,#050c0aee 12%,#050c0a80 40%,transparent 72%); }.opening-text { max-width:100%; }.opening-title { font-size:clamp(38px,10vw,61px); }.opening-chapter--start .opening-title { font-size:clamp(64px,18vw,100px); }.opening-kicker { font-size:16px; margin-bottom:15px; }.opening-detail { font-size:13px; line-height:1.9; margin-top:18px; }.opening-spec { font-size:10px; margin-top:22px; gap:7px 18px; }
+  .opening-brand { top:calc(23px + env(safe-area-inset-top,0px)); left:24px; font-size:15px; }.opening-brand span { font-size:7px; margin-left:12px; }.opening-index { top:27%; right:18px; gap:17px; }.opening-index span { display:none; }.opening-index button { min-width:30px; min-height:26px; }.opening-walk { display:none; }.opening-skip { right:24px; }.garden-ring { left:58%; top:31%; }.garden-fern { width:65%; height:66%; }.garden-fern--left { left:-20%; }.garden-fern--right { right:-17%; }
+}
+@media(max-height:550px) { .opening-chapter,.opening-chapter--right { padding-top:65px; padding-bottom:95px; align-items:flex-end; }.opening-chapter--start .opening-title { font-size:54px; }.opening-title { font-size:38px; }.opening-kicker { margin-bottom:6px; }.opening-detail { font-size:12px; margin-top:10px; }.opening-spec { display:none; }.opening-walk { display:none; } }
+@media(prefers-reduced-motion:reduce) { .opening,.replay-opening { display:none!important; }.opening *, .opening *:before { animation:none!important; transition:none!important; } }

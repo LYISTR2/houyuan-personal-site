@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="zh-CN" data-theme="light">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#efe5d5">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#efe5d5">
 <title>后院 · lyistr 的个人角落</title>
 <meta name="description" content="后院：一个放作品、小游戏和随手记的个人角落。来坡下走走，也给今天留一句话。">
 <link rel="stylesheet" href="assets/css/site.css">
 <link rel="stylesheet" href="farm-font.css">
 <link rel="stylesheet" href="assets/css/site-valley.css">
+<link rel="stylesheet" href="assets/css/opening.css">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -21,6 +22,23 @@
 </section>
 <section class="section notes" id="notes" aria-labelledby="notes-title"><div><div class="label">A NOTE TO MYSELF</div><h2 id="notes-title">今天，留一句话。</h2><p>不用写得像日记。想到什么就记什么，完成了可以点一下划掉。不想留下，也可以删掉。</p></div><div class="note-card"><label for="capIn">写在这台设备上的随手记</label><form id="noteForm" class="note-form"><input id="capIn" name="note" maxlength="80" autocomplete="off" placeholder="此刻想记住什么？" aria-label="随手记内容"><button type="submit">记下来</button></form><p class="privacy">仅保存在当前浏览器，不会公开，也不会同步到其他设备。</p><ul class="note-list" id="capList" aria-live="polite"></ul></div></section>
 </main><footer class="end"><span><b>后院</b> · lyistr 的个人角落</span><span>留点空间，给下一件会发生的事。</span></footer></div>
-<div class="opening" id="opening" aria-hidden="true"><div class="opening-screen" id="openingScreen"><div class="opening-chapter opening-chapter--start is-visible"><div class="opening-text"><span class="opening-kicker">LYISTR / AFTER DARK</span><strong class="opening-title">后院</strong><span class="opening-detail">天黑了，提着灯，沿着小路走走。</span></div></div><div class="opening-chapter opening-chapter--game"><img src="project-preview.webp" alt="" width="1240" height="800"><div class="opening-text"><span class="opening-kicker">01 / EXPLORE</span><strong class="opening-title">北山矿洞</strong><span class="opening-detail">从小路走到北山，带回木材和矿石，修好河谷里的旧磨坊。</span></div></div><div class="opening-chapter opening-chapter--farm"><img src="assets/world-preview.png" alt="" width="1240" height="860"><div class="opening-text"><span class="opening-kicker">02 / LIVE</span><strong class="opening-title">河谷的每一天</strong><span class="opening-detail">种好一片田，养一院小伙伴。清晨捡蛋，晴天放牧，带着奶酪和毛线去小镇赶集。</span></div></div><div class="opening-chapter opening-chapter--notes"><div class="opening-text"><span class="opening-kicker">03 / REMEMBER</span><strong class="opening-title">随手记</strong><span class="opening-detail">不必写成一篇文章。今天的一句话，也值得在这里待一会儿。</span></div></div><div class="opening-chapter opening-chapter--end"><div class="opening-text"><span class="opening-kicker">WELCOME HOME / LYISTR</span><strong class="opening-title">请进后院</strong><span class="opening-detail">玩一会儿，种一点东西，或者留下一句心情。</span></div></div><span class="opening-lantern" aria-hidden="true"></span><i class="opening-firefly"></i><i class="opening-firefly"></i><i class="opening-firefly"></i><i class="opening-firefly"></i><div class="opening-gate" aria-hidden="true"></div></div><div class="opening-index" aria-hidden="true"><span class="is-current">进门</span><span>探索</span><span>生长</span><span>记录</span><span>抵达</span></div><div class="opening-progress" aria-hidden="true"></div><button class="opening-skip" id="openingSkip" type="button">跳过开场 ↗</button></div>
+<section class="opening" id="opening" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="openingTitle">
+  <div class="opening-screen" id="openingScreen">
+    <canvas id="openingGarden" aria-hidden="true"></canvas>
+    <div class="opening-fallback" aria-hidden="true"><div class="garden-path"></div><div class="garden-ring"></div><span class="garden-fern garden-fern--left"></span><span class="garden-fern garden-fern--right"></span><i></i><i></i><i></i><i></i></div>
+    <div class="opening-vignette" aria-hidden="true"></div><div class="opening-grain" aria-hidden="true"></div>
+    <div class="opening-brand">后院 <span>LYISTR / AFTER DARK</span></div>
+    <div class="opening-chapter opening-chapter--start is-visible"><div class="opening-text"><span class="opening-kicker">A small world, after dark</span><h2 class="opening-title" id="openingTitle" aria-label="后院，灯亮了。"><span class="opening-line" aria-hidden="true" data-split>后院，</span><span class="opening-line" aria-hidden="true" data-split>灯亮了。</span></h2><p class="opening-detail">天黑以后，提着灯，沿着小路走走。<br>有些小日子，值得慢慢经过。</p></div></div>
+    <div class="opening-chapter"><div class="opening-text"><span class="opening-kicker">A little life in the valley</span><h2 class="opening-title">把日子，<br>种进土里。</h2><p class="opening-detail">田里的新芽，小院的伙伴。<br>从第一粒种子，慢慢长成自己的生活。</p><dl class="opening-spec"><dt>这一站</dt><dd>向阳农庄 · 河湾牧场</dd><dt>带上</dt><dd>种子、一点耐心</dd></dl></div></div>
+    <div class="opening-chapter opening-chapter--right"><div class="opening-text"><span class="opening-kicker">Where the river slows</span><h2 class="opening-title">听一会儿，<br>河的声音。</h2><p class="opening-detail">去柳树下等鱼咬钩，去青杉林带回木材。<br>经过游乐园，再玩一局。</p><dl class="opening-spec"><dt>这一站</dt><dd>柳荫钓鱼湾 · 青杉伐木林</dd><dt>顺路</dt><dd>风车游乐园</dd></dl></div></div>
+    <div class="opening-chapter"><div class="opening-text"><span class="opening-kicker">A lantern for the road</span><h2 class="opening-title">灯往前，<br>走远一点。</h2><p class="opening-detail">带一盏灯，去北山看看。<br>回来时，把收获带给河岸的邻居。</p><dl class="opening-spec"><dt>这一站</dt><dd>北山矿洞 · 石溪小镇</dd><dt>带回</dt><dd>矿石、故事，还有下一天</dd></dl></div></div>
+    <div class="opening-chapter opening-chapter--end"><div class="opening-text"><span class="opening-kicker">Welcome to the backyard</span><h2 class="opening-title">请进后院。</h2><p class="opening-detail">玩一会儿，种一点东西。<br>或者，给今天留一句话。</p><button id="openingEnter" type="button" class="opening-enter">灯在前面，进去看看 <span aria-hidden="true">↗</span></button></div></div>
+    <div class="opening-walk" aria-hidden="true"><span>沿着小路，进门</span><i></i></div>
+  </div>
+  <div class="opening-veil" id="openingVeil" aria-hidden="true"></div>
+  <nav class="opening-index" aria-label="夜游章节"><button type="button" data-opening-stop="0" aria-label="进门" aria-current="step"><span>进门</span><i></i></button><button type="button" data-opening-stop="1" aria-label="生长"><span>生长</span><i></i></button><button type="button" data-opening-stop="2" aria-label="河岸"><span>河岸</span><i></i></button><button type="button" data-opening-stop="3" aria-label="探路"><span>探路</span><i></i></button><button type="button" data-opening-stop="4" aria-label="抵达"><span>抵达</span><i></i></button></nav>
+  <div class="opening-progress" aria-hidden="true"></div><button class="opening-skip" id="openingSkip" type="button">跳过开场 ↗</button>
+</section>
 <script src="assets/js/site.js"></script>
+<script src="assets/js/opening.js"></script>
 </body></html>

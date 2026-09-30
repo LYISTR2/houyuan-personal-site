@@ -26,6 +26,8 @@ python3 -m http.server 8081 --bind 127.0.0.1
 - **北山矿洞**：横版挖掘、建造、合成、地底晶洞、宝箱、营火、护甲与战斗。进入时携带河谷的建材，离开时把剩余材料与新收获放回背包。
 - **同一个日常**：共享经营库存与游戏日历；探索期间农庄时间暂停，在返回时补算探索经过的游戏小时。没有离线惩罚。
 
+首页首次访问有一段植物夜游开场，参考用户提供的 `backyard-garden.html`：深绿夜色、光环、萤火、渐显文字与沿小径缓进的镜头。开场可以跳过、回看或切换章节；同一会话后续访问与首页锚点直接进入主页。Three.js 以 MIT 许可保存在本地，只在播放开场时加载；不请求 CDN、远程字体或 GSAP。关闭开场停止渲染并释放资源；WebGL 或脚本不可用时保留 CSS 夜景及正常进入路径。
+
 地图会随季节改变外观，日夜带来灯光，雨天为田地补水。环境动效遵循系统的“减少动态效果”设置；这个设置不会影响行走与玩法。
 
 ### 操作
@@ -60,7 +62,10 @@ assets/js/activities.js                伐木、钓鱼、游园与兑奖交互
 assets/js/activity-rules.js            再生、计分、控线与每日奖励规则
 assets/js/adventure.js                 冒险引擎
 assets/js/storage.js                   可恢复的跨存档物资转移
-assets/js/site.js                      首页主题、随手记与开场
+assets/js/site.js                      首页主题与随手记
+assets/js/opening.js                   夜游开场、章节、焦点与降级
+assets/js/opening-scene.js             程序生成的植物、镜头、光环与萤火
+assets/vendor/three.min.js             本地 Three.js r128（MIT）
 assets/css/                           各页面与场景样式
 farm-font.css / farm-ui*.woff2         本地中文字体与子集
 ```
@@ -86,10 +91,11 @@ node --test tests/*.test.cjs
 ```bash
 python3 tests/smoke.py
 python3 tests/outdoors-smoke.py
+python3 tests/opening-smoke.py
 # 或 python3 tests/smoke.py http://127.0.0.1:8092/
 ```
 
-浏览器检查使用独立浏览器上下文，覆盖旧存档迁移、真实田地收获与播种、订单、步行、矿洞合成与物资往返、手机地图、减少动态效果、首页随手记与主题。户外检查另外覆盖实际挥斧与再生、套圈计分、兑换、翻牌配对、打靶、手机钓鱼控线、鱼获入库、取消抛竿与刷新恢复。
+浏览器检查使用独立浏览器上下文，覆盖旧存档迁移、真实田地收获与播种、订单、步行、矿洞合成与物资往返、手机地图、减少动态效果、首页随手记与主题。开场检查覆盖本地 WebGL 场景、跳过与回看、章节切换、手机布局、键盘焦点、首次访问记忆、减少动态效果、图形资源失败和自动退出。户外检查另外覆盖实际挥斧与再生、套圈计分、兑换、翻牌配对、打靶、手机钓鱼控线、鱼获入库、取消抛竿与刷新恢复。
 
 如本机尚未安装浏览器测试工具，可使用 `python3 -m pip install playwright` 与 `python3 -m playwright install chromium`；将测试文件中的 `executable_path` 改为本机 Chromium 路径，或使用 Playwright 自带浏览器。
 

@@ -10,24 +10,3 @@ $('noteForm').addEventListener('submit',e=>{e.preventDefault();const inp=$('capI
 // 只在预览图内跟随鼠标，装饰效果不改变站点内容与本地存档。
 const postcard=document.querySelector('.postcard');
 postcard.addEventListener('pointermove',e=>{if(e.pointerType!=='mouse')return;const r=postcard.getBoundingClientRect();postcard.style.setProperty('--glow-x',e.clientX-r.left+'px');postcard.style.setProperty('--glow-y',e.clientY-r.top+'px')});
-// 首访夜游；锚点和减少动态效果直达首页，回看入口可随时重播。
-(()=>{const opening=$('opening'),screen=$('openingScreen'),skip=$('openingSkip'),replay=$('replayOpening'),site=document.querySelector('.site');
- const chapters=[...opening.querySelectorAll('.opening-chapter')],dots=[...opening.querySelectorAll('.opening-index span')];
- const motion=matchMedia('(prefers-reduced-motion: reduce)'),key='lj-opening-v2-seen',times=[0,1100,2300,3500,4700],revealAt=5800,revealFor=1000;
- let running=false,raf=0,watchdog=0,started=0,current=-1;
- const remember=()=>{try{sessionStorage.setItem(key,'1')}catch(e){}};
- const close=()=>{if(!running)return;running=false;cancelAnimationFrame(raf);clearTimeout(watchdog);const focused=opening.contains(document.activeElement);opening.classList.remove('is-active','is-journey','is-revealing');opening.setAttribute('aria-hidden','true');screen.style.setProperty('--hole','0px');site.inert=false;root.classList.remove('opening-lock');remember();window.removeEventListener('keydown',onKey);motion.removeEventListener('change',onMotionChange);if(focused)document.querySelector('.mark').focus()};
- function onKey(e){if(e.key==='Escape'){e.preventDefault();close()}}
- function onMotionChange(e){if(e.matches)close()}
- function frame(now){if(!running)return;if(!started)started=now;const t=now-started;
-  let next=0;for(let i=1;i<times.length;i++)if(t>=times[i])next=i;
-  if(next!==current){current=next;chapters.forEach((part,i)=>part.classList.toggle('is-visible',i===next));dots.forEach((dot,i)=>dot.classList.toggle('is-current',i===next));if(next)opening.classList.add('is-journey')}
-  opening.querySelector('.opening-progress').style.setProperty('--walk',Math.min(100,t/(revealAt+revealFor)*100)+'%');
-  if(t>=revealAt){opening.classList.add('is-revealing');const p=Math.min(1,(t-revealAt)/revealFor),ease=1-Math.pow(1-p,3);screen.style.setProperty('--hole',Math.ceil(ease*Math.hypot(innerWidth,innerHeight))+'px');if(p===1){close();return}}
-  raf=requestAnimationFrame(frame)}
- function play(){if(running||motion.matches)return;running=true;started=0;current=-1;screen.style.setProperty('--hole','0px');opening.querySelector('.opening-progress').style.setProperty('--walk','0%');opening.classList.remove('is-revealing','is-journey');chapters.forEach((part,i)=>part.classList.toggle('is-visible',i===0));dots.forEach((dot,i)=>dot.classList.toggle('is-current',i===0));site.inert=true;root.classList.add('opening-lock');opening.classList.add('is-active');opening.setAttribute('aria-hidden','false');skip.focus();window.addEventListener('keydown',onKey);motion.addEventListener('change',onMotionChange);raf=requestAnimationFrame(frame);watchdog=setTimeout(close,revealAt+revealFor+1200)}
- let seen=false;try{seen=sessionStorage.getItem(key)==='1'}catch(e){}
- skip.addEventListener('click',close);replay.addEventListener('click',play);
- if(!seen&&!location.hash)play();
- window.addEventListener('pageshow',e=>{if(e.persisted)close()});
-})();

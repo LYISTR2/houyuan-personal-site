@@ -42,3 +42,4 @@
 @media(max-width:800px) { .valley-chapters { grid-template-columns:1fr 1fr; }.atlas-heading { padding:24px 20px 18px; }.atlas-pin { font-size:9px; gap:5px; padding:6px 7px; border-width:1px; }.atlas-map { margin:0 12px; border-width:3px; }.atlas-caption { padding:17px 20px; flex-wrap:wrap; } }
 @media(max-width:430px) { .atlas-pin { font-size:8px; padding:5px; }.atlas-pin span { display:none; }.atlas-heading h3 { font-size:21px; }.valley-chapters a { min-height:159px; } }
 @media(prefers-reduced-motion:reduce) { .atlas-pin { transition:none; }.atlas-pin:hover { margin-top:0; } }
+@media(max-width:680px) { .postcard { transform:none; }.postcard .stamp { right:2px; top:-16px; transform:rotate(4deg); } }
