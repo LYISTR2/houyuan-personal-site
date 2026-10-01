@@ -57,10 +57,8 @@
     // The fairground wheel is decorative; each booth has an actual game.
     r(g,72,207,9,22,'#8c714b');r(g,127,207,9,22,'#8c714b');r(g,80,230,49,4,'#a17c4c');
     g.strokeStyle='#745c42';g.lineWidth=2;g.beginPath();g.moveTo(105,189);g.lineTo(75,230);g.moveTo(105,189);g.lineTo(133,230);g.stroke();
-    g.strokeStyle='#b28157';g.beginPath();g.arc(105,188,27,0,Math.PI*2);g.stroke();
-    for(let i=0;i<8;i++){const a=i*Math.PI/4,x=105+Math.cos(a)*27,y=188+Math.sin(a)*27;g.strokeStyle='#dfba75';g.beginPath();g.moveTo(105,188);g.lineTo(x,y);g.stroke();r(g,x-5,y,10,6,i%2?'#97b3b1':'#d09a7a');r(g,x-4,y+1,8,2,'#f0dfb1');}
-    r(g,102,185,6,6,'#e6bc70');
-    for(let x=59;x<379;x+=19){const y=79+Math.sin(x*.016)*4;r(g,x,y,1,2,'#8b734d');r(g,x-3,y+2,7,4,x%3?'#d69b85':'#e9cb89');r(g,x-2,y+6,5,2,x%3?'#d69b85':'#e9cb89');}
+    // The wheel rim, spokes and cabins are animated by BackyardAmbience.surface.
+
     r(g,200,238,4,29,'#93693f');r(g,257,238,4,29,'#93693f');r(g,198,235,65,7,'#bf8c58');r(g,203,232,54,3,'#e3b77e');
     for(const [x,y]of [[58,187],[278,242],[369,166],[58,245]]){r(g,x-3,y,17,7,'#a88052');for(let i=0;i<4;i++)flower(g,x+i*3,y-4,i%2?'#e7b0a7':'#f1d690');}
     lantern(g,187,185);lantern(g,283,227);
@@ -85,7 +83,7 @@
     r(g,907,780,26,4,'#a17d4d');r(g,910,784,2,4,'#74563a');r(g,928,784,2,4,'#74563a');r(g,920,773,10,7,'#c09a67');
     for(let i=0;i<12;i++){const x=976+(i%3)*3,y=625+Math.floor(i/3)*7;r(g,x,y,1,11,'#6c925d');r(g,x-1,y-2,3,4,'#b9aa77');}
     // A moored rowboat, baskets, stepping stones, and a picnic blanket.
-    r(g,1056,757,29,14,'#826445');r(g,1053,759,35,9,'#c19b62');r(g,1057,760,27,7,'#826445');r(g,1060,761,21,4,'#a78151');r(g,1064,757,2,14,'#d4b984');r(g,1075,758,2,13,'#d4b984');
+    // Moored boat is drawn by the animated surface pass, including in the atlas.
     r(g,950,736,10,9,'#b48b54');r(g,952,734,6,2,'#f0d8a1');r(g,953,736,2,5,'#ddaa76');
     r(g,772,756,45,29,'#d5a596');for(let x=772;x<817;x+=8)r(g,x,757,4,27,'#eee0b0');r(g,783,762,12,8,'#b59868');r(g,785,759,8,3,'#ebd6a3');
     for(const [x,y]of [[900,655],[883,637],[922,738]]){r(g,x,y,13,3,'#aab091');r(g,x+2,y-2,8,3,'#c4c8a7');}
@@ -150,7 +148,10 @@
     cottage((x,y,cw,ch,c)=>r(g,x,y,cw,ch,c),115,298);
     r(g,165,339,123,88,'#b0bd79');
     for(const plot of plots){const x=170+plot.x*16,y=345+plot.y*16;r(g,x,y,15,15,plot.w?'#715139':'#99754e');if(plot.s){r(g,x+6,y-1,3,12,'#759b4e');r(g,x+3,y+3,10,4,plot.st===3?'#dab276':'#91b85c');}}
-    for(const t of trees)if(root.BackyardActivities)BackyardActivities.drawTree(g,t,0);else g.drawImage(t.sprite,t.x-21,t.y-61);
+    if(root.BackyardAmbience)BackyardAmbience.surface(g,0,true,currentSeason,0);
+    const details=root.BackyardAmbience?BackyardAmbience.actors(0,true,currentSeason,0):[];
+    const actors=[...details,...trees.map(t=>({y:t.y,draw:()=>{if(root.BackyardActivities)BackyardActivities.drawTree(g,t,0);else g.drawImage(t.sprite,t.x-21,t.y-61);}}))].sort((a,b)=>a.y-b.y);
+    for(const actor of actors)actor.draw(g);
     g.restore();
   }
   root.BackyardArt={WIDTH,HEIGHT,palettes,bake,player,cottage,drawAtmosphere,drawOverview,get terrain(){return terrain;},get trees(){return trees;},noise};

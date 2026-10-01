@@ -207,6 +207,47 @@ function paintPostcard(t){
 }
 paintPostcard(FINAL);
 
+// Let the existing postcard breathe after the opening, without replaying sunrise.
+// A bounded 12fps loop sleeps when offscreen, hidden, or reduced motion is set.
+(function postcardLife(){
+  if(!heroContext)return;
+  var preference=window.matchMedia('(prefers-reduced-motion: reduce)');
+  var inView=false,handle=0,last=0,phase=FINAL,manualPause=false;
+  var control=document.createElement('button');control.type='button';control.className='postcard-motion';
+  control.textContent='暂停画面动态';control.setAttribute('aria-label','暂停主页装饰动态');control.setAttribute('aria-pressed','false');
+  heroCanvas.closest('.postcard').appendChild(control);
+  control.addEventListener('click',function(){manualPause=!manualPause;sync();});
+  function visible(){var op=document.getElementById('opening');return inView&&!document.hidden&&!preference.matches&&!manualPause&&(!op||op.hidden);}
+  function frame(now){
+    handle=0;
+    if(!visible()||!heroContext){last=0;return;}
+    if(!last||now-last>=1000/12){
+      if(last)phase+=Math.min(.15,(now-last)/1000)*.38;
+      last=now;paintPostcard(phase);
+    }
+    handle=requestAnimationFrame(frame);
+  }
+  function sync(){
+    var paused=manualPause||preference.matches;
+    document.documentElement.dataset.ambience=paused?'paused':'playing';
+    document.documentElement.toggleAttribute('data-page-hidden',document.hidden);
+    control.hidden=preference.matches;
+    control.textContent=manualPause?'播放画面动态':'暂停画面动态';
+    control.setAttribute('aria-label',manualPause?'播放主页装饰动态':'暂停主页装饰动态');
+    control.setAttribute('aria-pressed',String(manualPause));
+    if(visible()){if(!handle){last=0;handle=requestAnimationFrame(frame);}}
+    else{cancelAnimationFrame(handle);handle=0;last=0;if(preference.matches)paintPostcard(FINAL);}
+  }
+  if('IntersectionObserver' in window){
+    var observer=new IntersectionObserver(function(entries){inView=entries[0].isIntersecting;sync();},{threshold:.01});observer.observe(heroCanvas);
+  }else{inView=true;}
+  var op=document.getElementById('opening');
+  if(op)new MutationObserver(sync).observe(op,{attributes:true,attributeFilter:['hidden']});
+  preference.addEventListener('change',sync);document.addEventListener('visibilitychange',sync);
+  window.addEventListener('pagehide',function(){cancelAnimationFrame(handle);handle=0;last=0;});
+  window.addEventListener('pageshow',sync);sync();
+})();
+
 var root=document.getElementById('opening');
 if(!root)return;
 var motion=window.matchMedia('(prefers-reduced-motion: reduce)');

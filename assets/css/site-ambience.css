@@ -1,0 +1,37 @@
+/* Quiet accents, using the existing paper/ochre/sage palette. No layout rewrite. */
+.hero-art { position: relative; }
+.yard-sprig { position: absolute; bottom: 43px; right: -9px; width: 52px; height: 76px; z-index: 2; pointer-events: none; transform: rotate(8deg); }
+.yard-sprig svg, .yard-robin svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.yard-sprig .sprig-leaves { transform-origin: 25px 47px; animation: sprig-breeze 7s ease-in-out infinite; }
+.yard-robin { display: inline-block; width: 43px; height: 30px; margin-left: 10px; vertical-align: baseline; pointer-events: none; }
+.yard-robin .robin-head { transform-origin: 30px 10px; animation: robin-look 14s ease-in-out infinite; }
+.yard-robin .robin-tail { transform-origin: 16px 20px; animation: robin-tail 14s ease-in-out infinite; }
+.postcard-motion { position: absolute; bottom: 22px; left: 22px; z-index: 3; min-height: 32px; padding: 4px 9px; border: 1px solid #8d795e; border-radius: 3px; background: #fbf5e8ee; color: #67523e; font: 10px/1.4 var(--sans); cursor: pointer; }
+.postcard-motion:hover { background: #fff8e9; }
+.postcard-motion:focus-visible { outline: 2px solid var(--sun); outline-offset: 3px; }
+[data-theme="dark"] .yard-sprig, [data-theme="dark"] .yard-robin { filter: brightness(.85) saturate(.8); }
+/* The little chapter illustrations respond only to attention, not in unison. */
+.valley-chapters a:is(:hover,:focus-visible) .pixel-farm,
+.valley-chapters a:is(:hover,:focus-visible) .pixel-forest { animation: chapter-breeze 2.8s ease-in-out infinite; transform-origin: 50% 100%; }
+.valley-chapters a:is(:hover,:focus-visible) .pixel-park { animation: chapter-wheel 12s linear infinite; }
+.valley-chapters a:is(:hover,:focus-visible) .pixel-fishing::after { animation: chapter-ripple 2.6s ease-in-out infinite; }
+.valley-chapters a:is(:hover,:focus-visible) .pixel-mine::after { animation: chapter-glow 3s ease-in-out infinite; }
+@keyframes sprig-breeze { 0%,100% { transform: rotate(-2deg); } 50% { transform: rotate(3deg); } }
+@keyframes robin-look { 0%,65%,82%,100% { transform: rotate(0); } 70%,76% { transform: rotate(-9deg); } }
+@keyframes robin-tail { 0%,66%,80%,100% { transform: rotate(0); } 70%,76% { transform: rotate(8deg); } }
+@keyframes chapter-breeze { 0%,100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes chapter-wheel { to { transform: rotate(360deg); } }
+@keyframes chapter-ripple { 0%,100% { transform: translateX(0); opacity: .8; } 50% { transform: translateX(-8px); opacity: .3; } }
+@keyframes chapter-glow { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
+html[data-ambience="paused"] .yard-sprig *, html[data-ambience="paused"] .yard-robin *,
+html[data-ambience="paused"] .chapter-pixel, html[data-ambience="paused"] .chapter-pixel::after,
+html[data-ambience="paused"] .yard-insect, html[data-ambience="paused"] .yard-insect * { animation: none !important; }
+html[data-page-hidden] .yard-sprig *, html[data-page-hidden] .yard-robin * { animation-play-state: paused; }
+@media (max-width:600px) {
+  .yard-sprig { width: 40px; height: 59px; right: -5px; bottom: 46px; }
+  .yard-robin { width: 35px; height: 26px; margin-left: 6px; }
+  .postcard-motion { min-height: 44px; bottom: 17px; left: 17px; padding: 6px 10px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .yard-sprig *, .yard-robin *, .valley-chapters .chapter-pixel, .valley-chapters .chapter-pixel::after { animation: none !important; }
+}

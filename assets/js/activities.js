@@ -179,11 +179,17 @@
     ];
   }
   function drawTree(g,t,time) {
-    if(!t.id){g.drawImage(t.sprite,t.x-21,t.y-61);return;}
+    const drawSprite=(shake=0)=>{
+      // Keep the trunk and collision anchor fixed; sway only the cached canopy.
+      const sway=reducedMotion?0:Math.round(Math.sin(time*.0009+t.x*.03+t.y*.01)*1.1);
+      g.drawImage(t.sprite,0,42,42,22,t.x-21+shake,t.y-19,42,22);
+      g.drawImage(t.sprite,0,0,42,42,t.x-21+shake+sway,t.y-61,42,42);
+    };
+    if(!t.id){drawSprite();return;}
     const node=state().trees[t.id],stage=R.treeStage(node,clock());
     if(stage==='grown'){
       const shake=!reducedMotion&&effects.some(e=>Math.abs(e.x-t.x)<1&&e.until>time)?Math.sin(time*.05)*2:0;
-      g.drawImage(t.sprite,t.x-21+shake,t.y-61);
+      drawSprite(shake);
       if(node.hits){g.fillStyle='#614831';g.fillRect(t.x-12,t.y-63,24,4);g.fillStyle='#efbc6f';g.fillRect(t.x-11,t.y-62,(3-node.hits)*7,2);}
     }else{
       g.fillStyle='#785436';g.fillRect(t.x-5,t.y-7,11,8);g.fillStyle='#c49b63';g.fillRect(t.x-6,t.y-8,13,3);g.fillStyle='#e9c991';g.fillRect(t.x-3,t.y-8,6,1);

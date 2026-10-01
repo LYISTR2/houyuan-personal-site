@@ -144,14 +144,17 @@
     // Make all regions share the same path network, rather than separate screens.
     ctx.fillStyle='#d5be83';ctx.fillRect(600,448,72,17);ctx.fillRect(470,710,72,16);
     if(path.length&&!reducedMotion){ctx.fillStyle='#fff2b555';for(let i=0;i<path.length;i+=4)ctx.fillRect(path[i].x-1,path[i].y-1,2,2);}
-    const actors=[...A.trees.map(t=>({y:t.y,draw:()=>BackyardActivities.drawTree(ctx,t,performance.now())})),{y:player.y,draw:()=>A.player(ctx,player.x,player.y,player.phase,player.direction)}].sort((a,b)=>a.y-b.y);
+    const ambience=window.BackyardAmbience,night=Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));
+    if(ambience)ambience.surface(ctx,sceneTime,reducedMotion,season,night);
+    const details=ambience?ambience.actors(sceneTime,reducedMotion,season,night).map(a=>({y:a.y,draw:()=>a.draw(ctx)})):[];
+    const actors=[...details,...A.trees.map(t=>({y:t.y,draw:()=>BackyardActivities.drawTree(ctx,t,performance.now())})),{y:player.y,draw:()=>A.player(ctx,player.x,player.y,player.phase,player.direction)}].sort((a,b)=>a.y-b.y);
     // Fields are rendered below actors, with the original farming mechanics.
     ctx.restore();cam.z=camera.z;drawFence();drawYard();for(const p of plots)drawPlot(p);
     if(focusHit?.plot){const [x,y]=toScreen(focusHit.plot.x,focusHit.plot.y),s=CELL*camera.z;ctx.strokeStyle='#fff0b7';ctx.lineWidth=2;ctx.strokeRect(x-s/2,y-s/2,s,s);}
     ctx.save();ctx.translate(W/2-camera.x*camera.z,H*(overview?.5:.53)-camera.y*camera.z);ctx.scale(camera.z,camera.z);for(const a of actors)a.draw();BackyardArt.drawAtmosphere(ctx,sceneTime,reducedMotion);BackyardActivities.draw(ctx,performance.now(),player);ctx.restore();
     drawParticles(dt);
-    const night=Math.max(0,Math.min(1,hour<6?1-hour/6:hour>17?(hour-17)/5:0));
     if(night){ctx.fillStyle=`rgba(27,40,70,${night*.42})`;ctx.fillRect(0,0,W,H);for(const [x,y]of [[147,315],[601,168],[712,447],[938,448],[312,751]]){const [sx,sy]=screen(x,y),r=30*camera.z,g=ctx.createRadialGradient(sx,sy,0,sx,sy,r);g.addColorStop(0,`rgba(255,212,124,${night*.34})`);g.addColorStop(1,'rgba(255,212,124,0)');ctx.fillStyle=g;ctx.fillRect(sx-r,sy-r,r*2,r*2);}}
+    if(ambience){ctx.save();ctx.translate(W/2-camera.x*camera.z,H*(overview?.5:.53)-camera.y*camera.z);ctx.scale(camera.z,camera.z);ambience.air(ctx,sceneTime,reducedMotion,season,night);ctx.restore();}
     if(!reducedMotion&&day%5===0){ctx.fillStyle='#e6f4e666';for(let i=0;i<60;i++)ctx.fillRect((i*137-sceneTime*.03+W*50)%W,(i*89+sceneTime*.15)%H,1,7);}
     if(!reducedMotion&&season==='spring'){for(let i=0;i<12;i++){const x=(i*113+sceneTime*.008)%W,y=(i*97+sceneTime*.017)%H;ctx.fillStyle=i%2?'#f5dcbb88':'#edb9b088';ctx.fillRect(x,y,3,2);}}
     for(const sign of BackyardGeography.signs){const [x,y]=screen(sign.x,sign.y-13);if(x<-70||x>W+70||y<0||y>H)continue;ctx.font='600 11px \"Backyard Sans\",sans-serif';ctx.textAlign='center';const name=sign.label,w=ctx.measureText(name).width+18;ctx.fillStyle='#60482e';ctx.fillRect(x-w/2,y-14,w,22);ctx.fillStyle='#fff0c3';ctx.fillRect(x-w/2+1,y-13,w-2,20);ctx.fillStyle=sign.color;ctx.fillText(name,x,y+1);}if(focusHit&&!paused()){const [x,y]=screen(focusHit.x,focusHit.y-34);ctx.font='700 12px "Backyard Sans",sans-serif';ctx.textAlign='center';ctx.fillStyle='#654931';ctx.fillRect(x-13,y-13,26,23);ctx.fillStyle='#fff2c4';ctx.fillRect(x-11,y-11,22,19);ctx.fillStyle='#654931';ctx.fillText('E',x,y+3);}
