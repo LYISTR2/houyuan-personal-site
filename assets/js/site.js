@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);const root=document.documentElement;const KEY='lj-capture-v1';
-function setTheme(t){const v=t==='dark'?'dark':'light';root.dataset.theme=v;$('themeBtn').textContent=v==='dark'?'日间模式':'夜间模式';try{localStorage.setItem('lj-theme',v)}catch(e){}}
+function setTheme(t){const v=t==='dark'?'dark':'light';root.dataset.theme=v;$('themeBtn').textContent=v==='dark'?'日间模式':'夜间模式';$('themeBtn').setAttribute('aria-pressed',String(v==='dark'));const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=v==='dark'?'#28231f':'#efe5d5';try{localStorage.setItem('lj-theme',v)}catch(e){}}
 let storedTheme='light';try{storedTheme=localStorage.getItem('lj-theme')||'light'}catch(e){}setTheme(storedTheme);
 $('themeBtn').addEventListener('click',()=>setTheme(root.dataset.theme==='dark'?'light':'dark'));
 let caps=[];try{const v=JSON.parse(localStorage.getItem(KEY));if(Array.isArray(v))caps=v.filter(x=>x&&typeof x.text==='string')}catch(e){}

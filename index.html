@@ -12,29 +12,46 @@
 </head>
 <body>
 <div class="site">
-<header class="top"><a class="mark" href="#top" aria-label="后院，返回顶部"><span class="mark-icon" aria-hidden="true"><span>后</span></span>后院</a><nav class="nav" aria-label="站点导航"><a href="#work">作品</a><a href="#notes">随手记</a><a href="world.html">去河谷</a></nav><button class="mode" id="themeBtn" type="button" aria-label="切换明暗主题">夜间模式</button><button class="mode replay-opening" id="replayOpening" type="button">重看开场 ↗</button></header>
+<header class="top">
+  <a class="mark" href="#top" aria-label="后院，返回顶部"><span class="mark-icon" aria-hidden="true">后</span>后院</a>
+  <nav class="nav" aria-label="站点导航"><a href="#work">河谷生活</a><a href="#notes">随手记</a><a href="world.html">去河谷 ↗</a></nav>
+  <div class="top-tools"><button class="mode" id="themeBtn" type="button" aria-label="切换明暗主题">夜间模式</button><button class="mode replay-opening" id="replayOpening" type="button" hidden>重看开场 ↗</button></div>
+</header>
 <main id="top">
-<section class="hero" aria-labelledby="hero-title"><span class="yard-insect yard-insect--butterfly" aria-hidden="true"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path class="wing-left" d="M15 14C8 3 2 4 4 12c-5 2-2 9 11 5Z" fill="#c18b4a" stroke="#654835" stroke-width="1.2"/><path class="wing-right" d="M17 14C24 3 30 4 28 12c5 2 2 9-11 5Z" fill="#e6b267" stroke="#654835" stroke-width="1.2"/><path d="M16 11v11m-1-10-3-4m5 4 3-4" stroke="#4f3c2b" stroke-width="2" stroke-linecap="round"/></svg></span><div class="hero-text"><div class="eyebrow">LYISTR / A LITTLE LIFE IN THE VALLEY</div><h1 id="hero-title">把日子，种在<br><em>河谷里。</em></h1><p class="lead">这里是 lyistr 的后院。一张地图，七种小日子。种菜、养小伙伴、去森林挥斧，沿着河岸，把今天过得慢一点。</p><p class="intro">午后去游乐园玩两局，傍晚在柳树下等鱼咬钩。等天色暗下来，再带一盏灯，去北山看看。</p><div class="actions"><a class="btn btn-main" href="world.html">开启河谷生活 <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#work">看看这里有什么 ↓</a></div></div><div class="postcard" aria-label="后院物语：一座可以生活的像素河谷"><div class="stamp">A NEW DAY<br>↓ IN THE VALLEY</div><img src="assets/world-preview.png" alt="后院物语的大世界：农庄、牧场、小镇、游乐园、伐木林、钓鱼湾和矿洞" width="1280" height="960"><div class="caption">日出而作，沿河而居 / THE BACKYARD VALLEY</div></div></section>
+<section class="hero" aria-labelledby="hero-title">
+  <span class="yard-insect yard-insect--butterfly" aria-hidden="true"><svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path class="wing-left" d="M15 14C8 3 2 4 4 12c-5 2-2 9 11 5Z" fill="#c18b4a" stroke="#654835" stroke-width="1.2"/><path class="wing-right" d="M17 14C24 3 30 4 28 12c5 2 2 9-11 5Z" fill="#e6b267" stroke="#654835" stroke-width="1.2"/><path d="M16 11v11m-1-10-3-4m5 4 3-4" stroke="#4f3c2b" stroke-width="2" stroke-linecap="round"/></svg></span>
+  <div class="hero-heading"><div class="eyebrow">LYISTR / A NEW DAY IN THE VALLEY</div><h1 id="hero-title">把日子，种在<br><em>河谷里。</em></h1></div>
+  <div class="hero-copy"><p class="lead">这里是 lyistr 的后院。种菜、照料小伙伴，或只是沿着小河走走，把今天过得慢一点。</p><p class="intro">一张地图，七种小日子。随时回来，接着生活。</p><div class="actions"><a class="btn btn-main" href="world.html">开启河谷生活 <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#work">沿着小路看看 ↓</a></div></div>
+  <div class="hero-art">
+    <figure class="postcard" aria-label="后院，天亮了：像素河谷的清晨"><div class="postcard-view"><img class="postcard-fallback" src="assets/world-preview.png" alt="农舍、田地与沿河而居的像素河谷" width="1280" height="1006"><canvas id="postcardScene" width="192" height="144" aria-hidden="true" hidden></canvas></div><span class="stamp" aria-hidden="true">A NEW DAY<br>↓ IN THE VALLEY</span></figure>
+    <p class="postcard-caption"><span>日出而作，沿河而居</span><span>THE BACKYARD VALLEY</span></p>
+  </div>
+</section>
 <section class="section" id="work" aria-labelledby="work-title">
 <div class="heading"><div><div class="label">ONE VALLEY, MANY LITTLE STORIES</div><h2 id="work-title">一个世界，慢慢过日子。</h2></div><p>小路连着七个地方，收获也跟着你回家。</p></div>
-<article class="valley-feature"><a class="valley-preview" href="world.html" aria-label="进入后院物语"><img src="assets/world-preview.png" alt="后院河谷的原创像素地图" width="1280" height="960" loading="lazy"><span>后院物语 · THE BACKYARD VALLEY</span></a><div class="valley-copy"><span class="label">种植 / 养殖 / 游园 / 伐木 / 钓鱼 / 邻里 / 探索</span><h3>留一块地方，<br>给自己的小生活。</h3><p>清晨给番茄浇水，午后摸摸院子里的小鸡。把一篮收成带去集市，和面包师聊一会儿；再从青杉林带回木材，修好河谷里的旧磨坊。</p><p class="valley-small">套圈、萝卜打靶、河谷翻翻乐，赢来的小票换成种子。河边钓起的鱼，也能带去集市。四季的颜色与入夜的灯光，陪你走过每条小路。</p><a class="btn btn-main" href="world.html">走进后院物语 <span aria-hidden="true">↗</span></a></div></article>
+<article class="valley-feature">
+  <div class="valley-copy"><span class="label">THE BACKYARD VALLEY / 后院物语</span><h3>留一块地方，<br>给自己的小生活。</h3><p>清晨给番茄浇水，午后摸摸院子里的小鸡。把一篮收成带去集市，和面包师聊一会儿；再从青杉林带回木材，修好河谷里的旧磨坊。</p></div>
+  <div class="valley-invitation"><span class="valley-count" aria-hidden="true">07<span>PLACES TO CALL HOME</span></span><p>从田地到河岸，从游乐园到北山。<br>四季流转，每条小路都有新鲜事。</p><a class="btn btn-main" href="world.html">走进后院物语 <span aria-hidden="true">↗</span></a><span class="valley-save">进度保存在这个浏览器里，回来可以接着玩。</span></div>
+</article>
 <div class="valley-chapters"><a href="world.html?place=farm" data-place="farm"><i class="chapter-pixel pixel-farm" aria-hidden="true"></i><span>01 / GROW</span><h3>向阳农庄</h3><p>播种浇水，装满一篮收成。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=ranch" data-place="ranch"><i class="chapter-pixel pixel-ranch" aria-hidden="true"></i><span>02 / CARE</span><h3>河湾牧场</h3><p>领养鸡鸭，照料牛羊。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=town" data-place="town"><i class="chapter-pixel pixel-town" aria-hidden="true"></i><span>03 / BELONG</span><h3>石溪小镇</h3><p>加工赶集，拜访河岸邻居。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=park" data-place="park"><i class="chapter-pixel pixel-park" aria-hidden="true"></i><span>04 / PLAY</span><h3>风车游乐园</h3><p>套圈、打靶、翻牌换小礼物。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=forest" data-place="forest"><i class="chapter-pixel pixel-forest" aria-hidden="true"></i><span>05 / GATHER</span><h3>青杉伐木林</h3><p>挥斧采集，等树苗再长大。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=fishing" data-place="fishing"><i class="chapter-pixel pixel-fishing" aria-hidden="true"></i><span>06 / UNWIND</span><h3>柳荫钓鱼湾</h3><p>等鱼咬钩，看准水流收线。</p><b aria-hidden="true">↗</b></a><a href="world.html?place=mine" data-place="mine"><i class="chapter-pixel pixel-mine" aria-hidden="true"></i><span>07 / EXPLORE</span><h3>北山矿洞</h3><p>挖矿合成，探索地下晶洞。</p><b aria-hidden="true">↗</b></a></div><article class="homepage-atlas"><div class="atlas-heading"><span class="label">YOUR AFTERNOON, YOUR WAY</span><h3>今天，想走哪条小路？</h3><p>点一个地名，直接从那里开始今天的生活。</p></div><div class="atlas-map"><img src="assets/world-preview.png" width="1280" height="1006" loading="lazy" alt="可选择七个区域的河谷全景地图"><a href="world.html?place=farm" class="atlas-pin" style="--x:27%;--y:49%">向阳农庄<span>↗</span></a><a href="world.html?place=ranch" class="atlas-pin" style="--x:29%;--y:84%">河湾牧场<span>↗</span></a><a href="world.html?place=town" class="atlas-pin" style="--x:74%;--y:56%">石溪小镇<span>↗</span></a><a href="world.html?place=park" class="atlas-pin" style="--x:21%;--y:29%">风车游乐园<span>↗</span></a><a href="world.html?place=forest" class="atlas-pin" style="--x:73%;--y:31%">青杉伐木林<span>↗</span></a><a href="world.html?place=fishing" class="atlas-pin" style="--x:86%;--y:83%">柳荫钓鱼湾<span>↗</span></a><a href="world.html?place=mine" class="atlas-pin" style="--x:50%;--y:26%">北山矿洞<span>↗</span></a></div><div class="atlas-caption"><span>从清晨的田地，到亮着灯的河岸。</span><a href="world.html">带上背包，去走走 →</a></div></article>
 </section>
 <section class="section notes" id="notes" aria-labelledby="notes-title"><div><div class="label">A NOTE TO MYSELF</div><h2 id="notes-title">今天，留一句话。</h2><p>不用写得像日记。想到什么就记什么，完成了可以点一下划掉。不想留下，也可以删掉。</p></div><div class="note-card"><label for="capIn">写在这台设备上的随手记</label><form id="noteForm" class="note-form"><input id="capIn" name="note" maxlength="80" autocomplete="off" placeholder="此刻想记住什么？" aria-label="随手记内容"><button type="submit">记下来</button></form><p class="privacy">仅保存在当前浏览器，不会公开，也不会同步到其他设备。</p><ul class="note-list" id="capList" aria-live="polite"></ul></div></section>
 </main><footer class="end"><span><b>后院</b> · lyistr 的个人角落</span><span>留点空间，给下一件会发生的事。</span></footer></div>
-<section class="opening" id="opening" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="openingTitle">
-  <div class="opening-screen">
-    <div class="opening-fallback" aria-hidden="true"></div>
-    <canvas id="openingValley" aria-hidden="true"></canvas>
-    <div class="opening-shade" aria-hidden="true"></div>
-    <div class="opening-postmark" aria-hidden="true"><span>后院来信</span><small>A LITTLE PLACE TO COME HOME</small></div>
-    <div class="opening-heading"><span class="opening-leaf" aria-hidden="true"></span><p class="opening-eyebrow">THE BACKYARD VALLEY</p><h2 id="openingTitle">后院</h2><p class="opening-caption" id="openingCaption">星光落在河谷。</p><span class="opening-rule" aria-hidden="true"></span></div>
-    <div class="opening-invitation" id="openingInvitation" inert aria-hidden="true"><p>每一盏灯，都有一个小故事。</p><button id="openingEnter" type="button">推开木门，回到后院 <span aria-hidden="true">→</span></button></div>
-  </div>
-  <div class="opening-doors" aria-hidden="true"><div class="opening-door opening-door--left"><i class="door-brace"></i><i class="door-handle"></i></div><div class="opening-door opening-door--right"><i class="door-brace"></i><i class="door-handle"></i></div></div>
-  <div class="opening-corner opening-corner--top" aria-hidden="true"></div><div class="opening-corner opening-corner--bottom" aria-hidden="true"></div>
-  <footer class="opening-footer"><nav class="opening-stops" aria-label="归家小径"><button type="button" data-opening-stop="0" aria-current="step"><i></i>望星</button><span aria-hidden="true">···</span><button type="button" data-opening-stop="1"><i></i>归途</button><span aria-hidden="true">···</span><button type="button" data-opening-stop="2"><i></i>进门</button></nav><button class="opening-skip" id="openingSkip" type="button">直接进门 ↗</button></footer>
-  <div class="opening-progress" aria-hidden="true"><span></span></div>
+<section class="op" id="opening" role="dialog" aria-modal="true" aria-labelledby="opTitle"
+         data-target=".postcard" data-page=".site" data-remember="session" aria-hidden="true" hidden>
+  <div class="op-bg" aria-hidden="true"></div><div class="op-grain" aria-hidden="true"></div>
+  <header class="op-bar"><span class="op-mark"><i>后</i>后院</span><button class="op-skip" type="button">跳过开场 ↗</button></header>
+  <div class="op-stage"><div class="op-inner">
+    <h2 class="op-title" id="opTitle" aria-label="后院，天亮了。"><span data-split aria-hidden="true">后院，天亮了。</span></h2>
+    <div class="op-cardwrap">
+      <div class="op-halo" aria-hidden="true"></div>
+      <figure class="op-card">
+        <div class="op-view"><img class="op-fallback" src="assets/world-preview.png" width="1280" height="1006" alt="" hidden><canvas class="op-canvas" width="192" height="144" aria-hidden="true"></canvas></div>
+        <span class="op-stamp" aria-hidden="true">A NEW DAY<br>&darr; IN THE VALLEY</span>
+      </figure>
+    </div>
+    <div class="op-foot"><p class="op-caption"><span>日出而作，沿河而居</span><span class="op-caption-divider" aria-hidden="true">/</span><span>THE BACKYARD VALLEY</span></p><button class="op-enter" type="button">进去看看 ↗</button></div>
+  </div></div>
 </section>
 <script src="assets/js/site.js"></script>
 <script src="assets/js/opening.js"></script>
